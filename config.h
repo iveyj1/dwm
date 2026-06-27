@@ -7,8 +7,8 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 // static const char *fonts[]          = { "monospace:size=16" };
 // static const char dmenufont[]       = "monospace:size=13";
-static const char *fonts[]          = { "DroidSansM Nerd Font Mono:size=16" };
-static const char dmenufont[]       = "DroidSansM Nerd Font Mono:size=13";
+static const char *fonts[]          = { "DroidSansM Nerd Font Mono:size=14" };
+static const char dmenufont[]       = "DroidSansM Nerd Font Mono:size=14";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
