@@ -106,6 +106,12 @@ typedef struct {
 } Key;
 
 typedef struct {
+	const char **cmd;
+	int x, y, w, h;
+	int centered;
+} FloatingWindow;
+
+typedef struct {
 	const char *symbol;
 	void (*arrange)(Monitor *);
 } Layout;
@@ -205,6 +211,7 @@ static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
 static void spawn(const Arg *arg);
+static void spawnfloating(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
@@ -266,6 +273,7 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
+static const FloatingWindow *pendingfloatingwindow;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -1032,6 +1040,7 @@ void
 manage(Window w, XWindowAttributes *wa)
 {
 	Client *c, *t = NULL;
+	const FloatingWindow *fw;
 	Window trans = None;
 	XWindowChanges wc;
 
@@ -1051,6 +1060,19 @@ manage(Window w, XWindowAttributes *wa)
 	} else {
 		c->mon = selmon;
 		applyrules(c);
+		if ((fw = pendingfloatingwindow)) {
+			pendingfloatingwindow = NULL;
+			c->isfloating = 1;
+			c->w = c->oldw = MAX(1, fw->w);
+			c->h = c->oldh = MAX(1, fw->h);
+			if (fw->centered) {
+				c->x = c->oldx = c->mon->wx + (c->mon->ww - c->w) / 2;
+				c->y = c->oldy = c->mon->wy + (c->mon->wh - c->h) / 2;
+			} else {
+				c->x = c->oldx = fw->x < 0 ? c->mon->wx + c->mon->ww - c->w + fw->x : c->mon->wx + fw->x;
+				c->y = c->oldy = fw->y < 0 ? c->mon->wy + c->mon->wh - c->h + fw->y : c->mon->wy + fw->y;
+			}
+		}
 	}
 
 	if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
@@ -1664,6 +1686,16 @@ spawn(const Arg *arg)
 		execvp(((char **)arg->v)[0], (char **)arg->v);
 		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
 	}
+}
+
+void
+spawnfloating(const Arg *arg)
+{
+	const FloatingWindow *fw = arg->v;
+	Arg spawnarg = { .v = fw->cmd };
+
+	pendingfloatingwindow = fw;
+	spawn(&spawnarg);
 }
 
 void
