@@ -46,3 +46,11 @@ Configuration
 -------------
 The configuration of dwm is done by creating a custom config.h
 and (re)compiling the source code.
+
+Keymap
+------
+`Super+Shift+K` opens a centered, floating dmenu keymap. Press `Escape` to
+close it. Launchable dwm entries (launcher, terminal, browser, and file
+manager) execute after selection; the remaining entries are a reference for
+dwm and st shortcuts. The centered `-c` option requires the patched dmenu in
+`../dmenu`; rebuild/install it before using the keymap.

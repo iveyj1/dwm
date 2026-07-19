@@ -1,0 +1,46 @@
+#!/bin/sh
+# A searchable cheat sheet.  Escape cancels dmenu; selected launchable entries
+# are executed after dmenu exits, so the keymap always closes first.
+
+choice=$(printf '%s\n' \
+	'DWM  Super+P              application launcher' \
+	'DWM  Super+Return         terminal' \
+	'DWM  Super+Shift+S        floating terminal' \
+	'DWM  Super+B              browser' \
+	'DWM  Super+E              file manager' \
+	'DWM  Super+Shift+B        toggle bar' \
+	'DWM  Super+J / Super+K    focus next / previous' \
+	'DWM  Super+I / Super+D    change master count' \
+	'DWM  Super+H / Super+L    shrink / grow master area' \
+	'DWM  Super+Z              promote window to master' \
+	'DWM  Super+T / F / M      tile / floating / monocle layout' \
+	'DWM  Super+Space          cycle layouts' \
+	'DWM  Super+Shift+Space    toggle focused window floating' \
+	'DWM  Super+1..9           view tag 1..9' \
+	'DWM  Super+Shift+1..9     move window to tag 1..9' \
+	'DWM  Super+Shift+K        show this keymap' \
+	'DWM  Super+Q              close focused window' \
+	'DWM  Super+Shift+Q        quit dwm' \
+	'DWM  Volume / media keys  volume, mute, playback controls' \
+	'ST   Alt+Shift+C / V       copy / paste' \
+	'ST   Alt+C / V             copy / paste' \
+	'ST   Ctrl+Shift+C / V      copy / paste' \
+	'ST   Shift+PageUp/Down     scroll terminal history' \
+	'ST   Alt+Up/Down           scroll terminal history' \
+	'ST   Alt+U / Alt+D         scroll terminal history' \
+	'ST   Ctrl+= / Ctrl+-       increase / decrease font size' \
+	'ST   Ctrl+Home             reset font size' \
+	'ST   Alt+Shift+Up/Down     increase / decrease font size' \
+	'ST   Alt+L / Y / O         open URL / copy URL / copy output' \
+	'ST   Alt+S / A             lower / raise opacity' \
+	'ST   Alt+Escape            leave terminal mode' |
+	dmenu -c -l 24 -p 'Keymap (Esc to close)' -fn 'DroidSansM Nerd Font Mono:size=14' \
+		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
+
+case $choice in
+'DWM  Super+P '* ) exec dmenu_run ;;
+'DWM  Super+Return '* | 'DWM  Super+Shift+S '* ) exec st ;;
+'DWM  Super+B '* ) exec brave ;;
+'DWM  Super+E '* ) exec pcmanfm ;;
+'DWM  Volume / media keys'* ) exit 0 ;;
+esac

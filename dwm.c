@@ -128,6 +128,7 @@ struct Monitor {
 	unsigned int sellt;
 	unsigned int tagset[2];
 	int showbar;
+	int showbars[32];
 	int topbar;
 	Client *clients;
 	Client *sel;
@@ -223,6 +224,7 @@ static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
 static void updatebarpos(Monitor *m);
+static void updatebarshow(Monitor *m);
 static void updatebars(void);
 static void updateclientlist(void);
 static int updategeom(void);
@@ -646,7 +648,9 @@ createmon(void)
 	m->tagset[0] = m->tagset[1] = 1;
 	m->mfact = mfact;
 	m->nmaster = nmaster;
-	m->showbar = showbar;
+	for (int i = 0; i < LENGTH(tags); i++)
+		m->showbars[i] = showbar;
+	m->showbar = m->showbars[0];
 	m->topbar = topbar;
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
@@ -1747,7 +1751,12 @@ tile(Monitor *m)
 void
 togglebar(const Arg *arg)
 {
+	int i;
+
 	selmon->showbar = !selmon->showbar;
+	for (i = 0; i < LENGTH(tags); i++)
+		if (selmon->tagset[selmon->seltags] & (1 << i))
+			selmon->showbars[i] = selmon->showbar;
 	updatebarpos(selmon);
 	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
 	arrange(selmon);
@@ -1789,6 +1798,7 @@ toggleview(const Arg *arg)
 
 	if (newtagset) {
 		selmon->tagset[selmon->seltags] = newtagset;
+		updatebarshow(selmon);
 		focus(NULL);
 		arrange(selmon);
 	}
@@ -1867,6 +1877,20 @@ updatebars(void)
 		XMapRaised(dpy, m->barwin);
 		XSetClassHint(dpy, m->barwin, &ch);
 	}
+}
+
+void
+updatebarshow(Monitor *m)
+{
+	int i;
+
+	for (i = 0; i < LENGTH(tags); i++)
+		if (m->tagset[m->seltags] & (1 << i)) {
+			m->showbar = m->showbars[i];
+			break;
+		}
+	updatebarpos(m);
+	XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
 }
 
 void
@@ -2090,6 +2114,7 @@ view(const Arg *arg)
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if (arg->ui & TAGMASK)
 		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+	updatebarshow(selmon);
 	focus(NULL);
 	arrange(selmon);
 }
