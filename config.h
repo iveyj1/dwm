@@ -78,6 +78,8 @@ static const char *playpausecmd[] = { "playerctl", "play-pause", NULL };
 static const char *nextcmd[]      = { "playerctl", "next", NULL };
 static const char *prevcmd[]      = { "playerctl", "previous", NULL };
 static const char *stopcmd[]      = { "playerctl", "stop", NULL };
+static const char *brightupcmd[]  = { "brightness-up", NULL };
+static const char *brightdowncmd[] = { "brightness-down", NULL };
 
 static const Key keys[] = {
 	/* modifier    r                key        function        argument */
@@ -90,6 +92,8 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioNext,        spawn, {.v = nextcmd } },
 	{ 0,                            XF86XK_AudioPrev,        spawn, {.v = prevcmd } },
 	{ 0,                            XF86XK_AudioStop,        spawn, {.v = stopcmd } },
+	{ 0,                            XF86XK_MonBrightnessUp,  spawn, {.v = brightupcmd } },
+	{ 0,                            XF86XK_MonBrightnessDown, spawn, {.v = brightdowncmd } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_s,      spawnfloating,  {.v = &floatwin } },

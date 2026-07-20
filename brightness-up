@@ -1,0 +1,15 @@
+#!/bin/sh
+# Parabolic-ish brightness increase: tiny steps when dim, larger steps when bright.
+cur=$(brightnessctl get) || exit 1
+max=$(brightnessctl max) || exit 1
+scale=700
+maxstep=20
+minstep=5
+pct=$(( cur * 100 / max ))
+step=$(( 1 + pct * pct / $scale ))
+
+[ "$step" -lt $minstep ] && step=$minstep
+[ "$step" -gt $maxstep ] && step=$maxstep
+
+echo "exec brightnessctl set \"+${step}%\" -> $cur" >> /tmp/brightness
+exec brightnessctl set "+${step}%"
