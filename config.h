@@ -63,13 +63,14 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "sh", "-c" ,"cd $HOME;exec st", NULL };
+static const char *term1cmd[]  = { "sh", "-c" ,"cd $HOME;exec ghostty", NULL };
 static const char *keymapcmd[] = { "/bin/sh", "-c", "dwm-keymap", NULL };
 static const char *fmcmd[] = { "pcmanfm", NULL};
 static const char *floatcmd[] = { "sh", "-c" ,"cd $HOME;exec st", NULL };
 /* Negative x/y are offsets from the right/bottom edge of the selected monitor.
  * Set centered to 1 to ignore x/y and center on the selected monitor. */
 static const FloatingWindow floatwin = { floatcmd, -820, 20, 800, 500, 1 };
-static const char *browsercmd[]  = { "brave", NULL };
+static const char *browsercmd[]  = { "sh", "-c", "command -v brave-browser >/dev/null 2>&1 && exec brave-browser || command -v brave >/dev/null 2>&1 && exec brave || exec flatpak run com.brave.Browser", NULL };
 static const char *volupcmd[]    = { "wpctl", "set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+", NULL };
 static const char *voldowncmd[]  = { "wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-", NULL };
 static const char *volmutecmd[]  = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
@@ -96,6 +97,7 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_MonBrightnessDown, spawn, {.v = brightdowncmd } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = term1cmd } },
 	{ MODKEY|ShiftMask,             XK_s,      spawnfloating,  {.v = &floatwin } },
 	{ MODKEY|ShiftMask,             XK_k,      spawn,          {.v = keymapcmd } },
 	{ MODKEY,                       XK_b,      spawn,          {.v = browsercmd} },

@@ -4,8 +4,9 @@
 
 choice=$(printf '%s\n' \
 	'DWM  Super+P              application launcher' \
-	'DWM  Super+Return         terminal' \
-	'DWM  Super+Shift+S        floating terminal' \
+	'DWM  Super+Return         st terminal' \
+	'DWM  Super+Shift+Return   Ghostty terminal' \
+	'DWM  Super+Shift+S        floating st terminal' \
 	'DWM  Super+B              browser' \
 	'DWM  Super+E              file manager' \
 	'DWM  Super+Shift+B        toggle bar' \
@@ -16,31 +17,52 @@ choice=$(printf '%s\n' \
 	'DWM  Super+T / F / M      tile / floating / monocle layout' \
 	'DWM  Super+Space          cycle layouts' \
 	'DWM  Super+Shift+Space    toggle focused window floating' \
+	'DWM  Super+Tab            return to previous tag view' \
 	'DWM  Super+1..9           view tag 1..9' \
 	'DWM  Super+Shift+1..9     move window to tag 1..9' \
+	'DWM  Super+Ctrl+1..9      toggle tag in current view' \
+	'DWM  Super+Ctrl+Shift+1..9 toggle tag on focused window' \
+	'DWM  Super+0              view all tags' \
+	'DWM  Super+Shift+0        show focused window on all tags' \
+	'DWM  Super+, / Super+.    focus previous / next monitor' \
+	'DWM  Super+Shift+, / .    move window to previous / next monitor' \
 	'DWM  Super+Shift+K        show this keymap' \
 	'DWM  Super+Q              close focused window' \
 	'DWM  Super+Shift+Q        quit dwm' \
-	'DWM  Volume / media keys  volume, mute, playback controls' \
-	'ST   Alt+Shift+C / V       copy / paste' \
-	'ST   Alt+C / V             copy / paste' \
-	'ST   Ctrl+Shift+C / V      copy / paste' \
-	'ST   Shift+PageUp/Down     scroll terminal history' \
-	'ST   Alt+Up/Down           scroll terminal history' \
-	'ST   Alt+U / Alt+D         scroll terminal history' \
-	'ST   Ctrl+= / Ctrl+-       increase / decrease font size' \
-	'ST   Ctrl+Home             reset font size' \
-	'ST   Alt+Shift+Up/Down     increase / decrease font size' \
-	'ST   Alt+L / Y / O         open URL / copy URL / copy output' \
-	'ST   Alt+S / A             lower / raise opacity' \
-	'ST   Alt+Escape            leave terminal mode' |
-	dmenu -c -l 24 -p 'Keymap (Esc to close)' -fn 'DroidSansM Nerd Font Mono:size=14' \
+	'DWM  Volume keys          volume up/down, speaker/microphone mute' \
+	'DWM  Media keys           play/pause, previous, next, stop' \
+	'DWM  Brightness keys      screen brightness up / down' \
+	'DWM  Super+mouse 1/2/3   move / float / resize window' \
+	'DWM  Tag bar mouse 1/3    view tag / toggle tag in view' \
+	'DWM  Super+tag mouse 1/3  move window / toggle window on tag' \
+	'DWM  Layout mouse 1/3     cycle layout / monocle' \
+	'DWM  Title/status mouse 2 promote window / open st' \
+	'ST   Ctrl+Shift+C / V      copy / clipboard paste' \
+	'ST   Ctrl+Shift+Y          paste primary selection' \
+	'ST   Shift+Insert          paste primary selection' \
+	'ST   Shift+PageUp/Down     scroll history one page' \
+	'ST   Alt+PageUp/Down       scroll history one page' \
+	'ST   Alt+Up/Down           scroll history one line' \
+	'ST   Alt+U / Alt+D         scroll history one page' \
+	'ST   Ctrl+Shift+PageUp/Down increase / decrease font size' \
+	'ST   Ctrl+Shift+Home       reset font size' \
+	'ST   Mouse wheel           scroll history four lines' \
+	'ST   Ctrl+Mouse wheel      increase / decrease font size' \
+	'ST   Shift+Mouse wheel     send PageUp / PageDown to application' \
+	'ST   Middle click          paste primary selection' \
+	'ST   Alt+mouse selection   rectangular selection' \
+	'ST   Alt+F4                close; confirm if a process is running' |
+	dmenu -c -l 33 -p 'Keymap (Esc to close)' -fn 'DroidSansM Nerd Font Mono:size=14' \
 		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
 
 case $choice in
 'DWM  Super+P '* ) exec dmenu_run ;;
-'DWM  Super+Return '* | 'DWM  Super+Shift+S '* ) exec st ;;
-'DWM  Super+B '* ) exec brave ;;
+'DWM  Super+Return '* ) cd "$HOME" && exec st ;;
+'DWM  Super+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
+'DWM  Super+B '* )
+	command -v brave-browser >/dev/null 2>&1 && exec brave-browser
+	command -v brave >/dev/null 2>&1 && exec brave
+	exec flatpak run com.brave.Browser
+	;;
 'DWM  Super+E '* ) exec pcmanfm ;;
-'DWM  Volume / media keys'* ) exit 0 ;;
 esac
