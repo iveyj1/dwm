@@ -1,7 +1,8 @@
 #!/usr/bin/env bash 
 set -euo pipefail
-
 make clean
 make
-sudo make install
+if [[ ${1-} == -i ]]; then 
+    sudo make install
+fi
 

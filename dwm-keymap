@@ -16,6 +16,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+Z              promote window to master' \
 	'DWM  Super+T / F / M      tile / floating / monocle layout' \
 	'DWM  Super+Space          cycle layouts' \
+	'DWM  Super+N              rename tag' \
 	'DWM  Super+Shift+Space    toggle focused window floating' \
 	'DWM  Super+Tab            return to previous tag view' \
 	'DWM  Super+1..9           view tag 1..9' \
@@ -51,8 +52,12 @@ choice=$(printf '%s\n' \
 	'ST   Shift+Mouse wheel     send PageUp / PageDown to application' \
 	'ST   Middle click          paste primary selection' \
 	'ST   Alt+mouse selection   rectangular selection' \
+	'ST   Alt+Escape            enter / leave Vim-style copy mode' \
+	'ST   Alt+L                 choose and open URL from history' \
+	'ST   Alt+Y                 choose and copy URL from history' \
+	'ST   Alt+O                 choose and copy command output' \
 	'ST   Alt+F4                close; confirm if a process is running' |
-	dmenu -c -l 33 -p 'Keymap (Esc to close)' -fn 'DroidSansM Nerd Font Mono:size=14' \
+	dmenu -c -l 37 -p 'Keymap (Esc to close)' -fn 'DroidSansM Nerd Font Mono:size=14' \
 		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
 
 case $choice in
