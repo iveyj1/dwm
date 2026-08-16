@@ -22,7 +22,7 @@ static const char *colors[][3]      = {
 
 /* tagging */
 #define MAX_TAGLEN 16
-static char tags[][MAX_TAGLEN] = { "br", "2", "3", "4", "5", "6", "7", "8", "9" };
+static char tags[][MAX_TAGLEN] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -82,6 +82,8 @@ static const char *prevcmd[]      = { "playerctl", "previous", NULL };
 static const char *stopcmd[]      = { "playerctl", "stop", NULL };
 static const char *brightupcmd[]  = { "brightness-up", NULL };
 static const char *brightdowncmd[] = { "brightness-down", NULL };
+static const char *screenshotcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot", NULL};
+static const char *screenshotfullcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot-full", NULL};
 
 static const Key keys[] = {
 	/* modifier    r                key        function        argument */
@@ -95,7 +97,9 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioPrev,        spawn, {.v = prevcmd } },
 	{ 0,                            XF86XK_AudioStop,        spawn, {.v = stopcmd } },
 	{ 0,                            XF86XK_MonBrightnessUp,  spawn, {.v = brightupcmd } },
-	{ 0,                            XF86XK_MonBrightnessDown, spawn, {.v = brightdowncmd } },
+	{ 0,                            XF86XK_MonBrightnessDown,spawn, {.v = brightdowncmd } },
+    { 0,                            XK_Print,  spawn,          {.v = screenshotcmd } },
+    { ShiftMask,                    XK_Print,  spawn,          {.v = screenshotfullcmd } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = term1cmd } },

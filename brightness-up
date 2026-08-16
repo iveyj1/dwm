@@ -11,5 +11,4 @@ step=$(( 1 + pct * pct / $scale ))
 [ "$step" -lt $minstep ] && step=$minstep
 [ "$step" -gt $maxstep ] && step=$maxstep
 
-echo "exec brightnessctl set \"+${step}%\" -> $cur" >> /tmp/brightness
 exec brightnessctl set "+${step}%"
