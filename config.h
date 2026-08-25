@@ -87,6 +87,7 @@ static const char *brightupcmd[]  = { "brightness-up", NULL };
 static const char *brightdowncmd[] = { "brightness-down", NULL };
 static const char *screenshotcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot", NULL};
 static const char *screenshotfullcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot-full", NULL};
+static const char *sleepcmd[] = { "loginctl", "suspend", NULL };
 
 static const Key keys[] = {
 	/* modifier    r                key        function        argument */
@@ -106,6 +107,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = term1cmd } },
+	{ MODKEY,                       XK_s,      spawn,          {.v = sleepcmd } },
 	{ MODKEY|ShiftMask,             XK_s,      spawnfloating,  {.v = &floatwin } },
 	{ MODKEY|ShiftMask,             XK_k,      spawn,          {.v = keymapcmd } },
 	{ MODKEY,                       XK_b,      spawn,          {.v = browsercmd} },

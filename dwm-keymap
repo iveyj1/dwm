@@ -6,6 +6,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+P              application launcher' \
 	'DWM  Super+Return         st terminal' \
 	'DWM  Super+Shift+Return   Ghostty terminal' \
+	'DWM  Super+S              suspend laptop' \
 	'DWM  Super+Shift+S        floating st terminal' \
 	'DWM  Super+B              browser' \
 	'DWM  Super+E              file manager' \
@@ -64,6 +65,7 @@ case $choice in
 'DWM  Super+P '* ) exec dmenu_run ;;
 'DWM  Super+Return '* ) cd "$HOME" && exec st ;;
 'DWM  Super+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
+'DWM  Super+S '* ) exec systemctl suspend ;;
 'DWM  Super+B '* )
 	command -v brave-browser >/dev/null 2>&1 && exec brave-browser
 	command -v brave >/dev/null 2>&1 && exec brave
