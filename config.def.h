@@ -87,7 +87,7 @@ static const char *brightupcmd[]  = { "brightness-up", NULL };
 static const char *brightdowncmd[] = { "brightness-down", NULL };
 static const char *screenshotcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot", NULL};
 static const char *screenshotfullcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot-full", NULL};
-static const char *sleepcmd[] = { "loginctl", "suspend", NULL };
+static const char *sleepcmd[] = { "dwm-suspend", NULL };
 
 static const Key keys[] = {
 	/* modifier    r                key        function        argument */

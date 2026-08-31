@@ -1,0 +1,9 @@
+#!/bin/sh
+# Suspend the system. Prefer elogind/loginctl when available, but keep a
+# systemctl fallback for installations that provide it instead.
+
+if command -v loginctl >/dev/null 2>&1; then
+	exec loginctl suspend
+fi
+
+exec systemctl suspend

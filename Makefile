@@ -39,6 +39,7 @@ install: all
 	cp -f dwm \
 		dwm-spawn\
 		dwm-keymap\
+		dwm-suspend\
 		brightness-up\
 		brightness-down\
 		dwm-screenshot\
@@ -48,6 +49,7 @@ install: all
 	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm \
 		      ${DESTDIR}${PREFIX}/bin/dwm-spawn \
 			  ${DESTDIR}${PREFIX}/bin/dwm-keymap \
+			  ${DESTDIR}${PREFIX}/bin/dwm-suspend \
 			  ${DESTDIR}${PREFIX}/bin/brightness-up \
 			  ${DESTDIR}${PREFIX}/bin/brightness-down \
 			  ${DESTDIR}${PREFIX}/bin/dwm-screenshot \
@@ -59,6 +61,7 @@ install: all
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm ${DESTDIR}${PREFIX}/bin/dwm-spawn ${DESTDIR}${PREFIX}/bin/dwm-keymap\
+		${DESTDIR}${PREFIX}/bin/dwm-suspend\
 		${DESTDIR}${PREFIX}/bin/brightness-up ${DESTDIR}${PREFIX}/bin/brightness-down\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 

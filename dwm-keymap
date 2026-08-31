@@ -34,6 +34,8 @@ choice=$(printf '%s\n' \
 	'DWM  Volume keys          volume up/down, speaker/microphone mute' \
 	'DWM  Media keys           play/pause, previous, next, stop' \
 	'DWM  Brightness keys      screen brightness up / down' \
+	'DWM  Print                screenshot region/window' \
+	'DWM  Shift+Print          screenshot full screen' \
 	'DWM  Super+mouse 1/2/3   move / float / resize window' \
 	'DWM  Tag bar mouse 1/3    view tag / toggle tag in view' \
 	'DWM  Super+tag mouse 1/3  move window / toggle window on tag' \
@@ -47,6 +49,7 @@ choice=$(printf '%s\n' \
 	'ST   Alt+Up/Down           scroll history one line' \
 	'ST   Alt+U / Alt+D         scroll history one page' \
 	'ST   Ctrl+Shift+PageUp/Down increase / decrease font size' \
+	'ST   Super+Shift+= / -     increase / decrease font size' \
 	'ST   Ctrl+Shift+Home       reset font size' \
 	'ST   Mouse wheel           scroll history four lines' \
 	'ST   Ctrl+Mouse wheel      increase / decrease font size' \
@@ -54,6 +57,10 @@ choice=$(printf '%s\n' \
 	'ST   Middle click          paste primary selection' \
 	'ST   Alt+mouse selection   rectangular selection' \
 	'ST   Alt+Escape            enter / leave Vim-style copy mode' \
+	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
+	'ST   Copy mode: gg/G top/bottom; Ctrl+u/d half page' \
+	'ST   Copy mode: PgUp/PgDn page; v/V select; y yank' \
+	'ST   Copy mode: Esc/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose and open URL from history' \
 	'ST   Alt+Y                 choose and copy URL from history' \
 	'ST   Alt+O                 choose and copy command output' \
@@ -65,7 +72,9 @@ case $choice in
 'DWM  Super+P '* ) exec dmenu_run ;;
 'DWM  Super+Return '* ) cd "$HOME" && exec st ;;
 'DWM  Super+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
-'DWM  Super+S '* ) exec systemctl suspend ;;
+'DWM  Super+S '* ) exec dwm-suspend ;;
+'DWM  Print '* ) cd "$HOME" && exec dwm-screenshot ;;
+'DWM  Shift+Print '* ) cd "$HOME" && exec dwm-screenshot-full ;;
 'DWM  Super+B '* )
 	command -v brave-browser >/dev/null 2>&1 && exec brave-browser
 	command -v brave >/dev/null 2>&1 && exec brave
