@@ -33,8 +33,9 @@ static const Rule rules[] = {
 	/* class                     instance title          tags mask  isfloating  isterminal  noswallow  monitor */
 	{ "Gimp",                    NULL,    NULL,          0,         1,          0,           0,        -1 },
 	{ "St",                      NULL,    NULL,          0,         0,          1,           0,        -1 },
+	{ "kitty",                   NULL,    NULL,          0,         0,          1,           0,        -1 },
 	{ "com.mitchellh.ghostty",   NULL,    NULL,          0,         0,          1,           0,        -1 },
-	{ NULL,                      NULL,    "Event Tester", 0,       0,          0,           1,        -1 }, /* xev */
+	{ NULL,                      NULL,    "Event Tester",0,         0,          0,           1,        -1 }, /* xev */
 };
 
 /* layout(s) */
@@ -67,7 +68,8 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "sh", "-c" ,"cd $HOME;exec st", NULL };
-static const char *term1cmd[]  = { "sh", "-c" ,"cd $HOME;exec ghostty", NULL };
+static const char *term1cmd[]  = { "sh", "-c" ,"cd $HOME;exec kitty", NULL };
+static const char *term2cmd[]  = { "sh", "-c" ,"cd $HOME;exec ghostty", NULL };
 static const char *keymapcmd[] = { "/bin/sh", "-c", "dwm-keymap", NULL };
 static const char *fmcmd[] = { "pcmanfm", NULL};
 static const char *floatcmd[] = { "sh", "-c" ,"cd $HOME;exec st", NULL };
@@ -107,6 +109,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = term1cmd } },
+	{ MODKEY|ShiftMask|ControlMask,    XK_Return, spawn,          {.v = term2cmd } },
 	{ MODKEY,                       XK_s,      spawn,          {.v = sleepcmd } },
 	{ MODKEY|ShiftMask,             XK_s,      spawnfloating,  {.v = &floatwin } },
 	{ MODKEY|ShiftMask,             XK_k,      spawn,          {.v = keymapcmd } },
