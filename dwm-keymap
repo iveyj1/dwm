@@ -62,7 +62,8 @@ choice=$(printf '%s\n' \
 	'ST   Alt+Escape            enter / leave Vim-style copy mode' \
 	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
 	'ST   Copy mode: gg/G top/bottom; Ctrl+u/d half page' \
-	'ST   Copy mode: PgUp/PgDn page; v/V select; y yank; Y clean yank' \
+	'ST   Copy mode: PgUp/PgDn; v/V regular/line; Ctrl+v rectangle' \
+	'ST   Copy mode: y yank; Y clean yank' \
 	'ST   Copy mode: Esc/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose and open URL from history' \
 	'ST   Alt+Y                 choose and copy URL from history' \

@@ -11,7 +11,7 @@ Copy / paste
 ------------
 CLIPBOARD workflow:
   1. Select with mouse drag, Alt+drag for a rectangle, or copy mode (`v` regular,
-     `V` line-wise). In mouse-aware apps, use Shift+Alt+drag for a rectangle.
+     `V` line-wise, Ctrl+V rectangular). In mouse-aware apps, use Shift+Alt+drag.
   2. Ctrl+Shift+C copies and preserves trailing spaces/tabs.
      Ctrl+Shift+X copies and trims trailing spaces/tabs from every selected line.
      In copy mode, `y` copies normally and `Y` performs the trimmed copy directly.
@@ -57,6 +57,7 @@ gg / G                   top / bottom
 Ctrl+u / Ctrl+d          half page up / down
 PageUp / PageDown        page up / down
 v / V                    visual / visual line
+Ctrl+v                   visual rectangular block
 y                        yank selection
 Y                        clean yank (trim trailing spaces/tabs)
 Esc / q / i / Enter      leave copy mode
