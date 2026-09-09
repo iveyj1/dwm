@@ -3,7 +3,7 @@
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
-static const int swallowfloating    = 0;        /* 1 means swallow floating windows */
+static const int swallowfloating    = 1;        /* 1 means swallow floating windows */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 // static const char *fonts[]          = { "monospace:size=16" };
@@ -32,6 +32,7 @@ static const Rule rules[] = {
 	 */
 	/* class                     instance title          tags mask  isfloating  isterminal  noswallow  monitor */
 	{ "Gimp",                    NULL,    NULL,          0,         1,          0,           0,        -1 },
+	{ "StHelp",                  NULL,    NULL,          0,         1,          1,           1,        -1 },
 	{ "St",                      NULL,    NULL,          0,         0,          1,           0,        -1 },
 	{ "kitty",                   NULL,    NULL,          0,         0,          1,           0,        -1 },
 	{ "com.mitchellh.ghostty",   NULL,    NULL,          0,         0,          1,           0,        -1 },
@@ -71,6 +72,7 @@ static const char *termcmd[]  = { "sh", "-c" ,"cd $HOME;exec st", NULL };
 static const char *term1cmd[]  = { "sh", "-c" ,"cd $HOME;exec kitty", NULL };
 static const char *term2cmd[]  = { "sh", "-c" ,"cd $HOME;exec ghostty", NULL };
 static const char *keymapcmd[] = { "/bin/sh", "-c", "dwm-keymap", NULL };
+static const char *sthelpcmd[] = { "/bin/sh", "-c", "dwm-st-help", NULL };
 static const char *fmcmd[] = { "pcmanfm", NULL};
 static const char *floatcmd[] = { "sh", "-c" ,"cd $HOME;exec st", NULL };
 /* Negative x/y are offsets from the right/bottom edge of the selected monitor.
@@ -113,6 +115,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_s,      spawn,          {.v = sleepcmd } },
 	{ MODKEY|ShiftMask,             XK_s,      spawnfloating,  {.v = &floatwin } },
 	{ MODKEY|ShiftMask,             XK_k,      spawn,          {.v = keymapcmd } },
+	{ MODKEY|ShiftMask,             XK_h,      spawn,          {.v = sthelpcmd } },
 	{ MODKEY,                       XK_b,      spawn,          {.v = browsercmd} },
     { MODKEY,                       XK_e,      spawn,          {.v = fmcmd} },
 	{ MODKEY|ShiftMask,             XK_b,      togglebar,      {0} },

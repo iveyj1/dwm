@@ -5,7 +5,8 @@
 choice=$(printf '%s\n' \
 	'DWM  Super+P              application launcher' \
 	'DWM  Super+Return         st terminal' \
-	'DWM  Super+Shift+Return   Ghostty terminal' \
+	'DWM  Super+Shift+Return   Kitty terminal' \
+	'DWM  Super+Ctrl+Shift+Return Ghostty terminal' \
 	'DWM  Super+S              suspend laptop' \
 	'DWM  Super+Shift+S        floating st terminal' \
 	'DWM  Super+B              browser' \
@@ -29,6 +30,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+, / Super+.    focus previous / next monitor' \
 	'DWM  Super+Shift+, / .    move window to previous / next monitor' \
 	'DWM  Super+Shift+K        show this keymap' \
+	'DWM  Super+Shift+H        show st-reflow help' \
 	'DWM  Super+Q              close focused window' \
 	'DWM  Super+Shift+Q        quit dwm' \
 	'DWM  Volume keys          volume up/down, speaker/microphone mute' \
@@ -42,6 +44,7 @@ choice=$(printf '%s\n' \
 	'DWM  Layout mouse 1/3     cycle layout / monocle' \
 	'DWM  Title/status mouse 2 promote window / open st' \
 	'ST   Ctrl+Shift+C / V      copy / clipboard paste' \
+	'ST   Ctrl+Shift+X          clean copy (trim trailing spaces)' \
 	'ST   Ctrl+Shift+Y          paste primary selection' \
 	'ST   Shift+Insert          paste primary selection' \
 	'ST   Shift+PageUp/Down     scroll history one page' \
@@ -55,11 +58,11 @@ choice=$(printf '%s\n' \
 	'ST   Ctrl+Mouse wheel      increase / decrease font size' \
 	'ST   Shift+Mouse wheel     send PageUp / PageDown to application' \
 	'ST   Middle click          paste primary selection' \
-	'ST   Alt+mouse selection   rectangular selection' \
+	'ST   Alt+drag              rectangular selection (add Shift in mouse apps)' \
 	'ST   Alt+Escape            enter / leave Vim-style copy mode' \
 	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
 	'ST   Copy mode: gg/G top/bottom; Ctrl+u/d half page' \
-	'ST   Copy mode: PgUp/PgDn page; v/V select; y yank' \
+	'ST   Copy mode: PgUp/PgDn page; v/V select; y yank; Y clean yank' \
 	'ST   Copy mode: Esc/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose and open URL from history' \
 	'ST   Alt+Y                 choose and copy URL from history' \
@@ -71,7 +74,9 @@ choice=$(printf '%s\n' \
 case $choice in
 'DWM  Super+P '* ) exec dmenu_run ;;
 'DWM  Super+Return '* ) cd "$HOME" && exec st ;;
-'DWM  Super+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
+'DWM  Super+Shift+Return '* ) cd "$HOME" && exec kitty ;;
+'DWM  Super+Ctrl+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
+'DWM  Super+Shift+H '* ) exec dwm-st-help ;;
 'DWM  Super+S '* ) exec dwm-suspend ;;
 'DWM  Print '* ) cd "$HOME" && exec dwm-screenshot ;;
 'DWM  Shift+Print '* ) cd "$HOME" && exec dwm-screenshot-full ;;

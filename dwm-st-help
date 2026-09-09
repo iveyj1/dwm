@@ -1,0 +1,78 @@
+#!/bin/sh
+# Compact st-reflow help in a temporary floating terminal.
+
+tmp=$(mktemp "${TMPDIR:-/tmp}/st-reflow-help.XXXXXX") || exit 1
+
+cat > "$tmp" <<'EOF'
+st-reflow quick help
+====================
+
+Copy / paste
+------------
+CLIPBOARD workflow:
+  1. Select with mouse drag, Alt+drag for a rectangle, or copy mode (`v` regular,
+     `V` line-wise). In mouse-aware apps, use Shift+Alt+drag for a rectangle.
+  2. Ctrl+Shift+C copies and preserves trailing spaces/tabs.
+     Ctrl+Shift+X copies and trims trailing spaces/tabs from every selected line.
+     In copy mode, `y` copies normally and `Y` performs the trimmed copy directly.
+  3. Ctrl+Shift+V pastes CLIPBOARD.
+
+PRIMARY is the current mouse selection and is initially untrimmed. Paste it with
+middle click, Ctrl+Shift+Y, or Shift+Insert. Ctrl+Shift+X replaces both PRIMARY
+and CLIPBOARD with the trimmed selection, so either kind of paste is then clean.
+
+Paste line endings are normalized for every program run inside st: LF, CRLF, and
+CR each become one terminal Enter. This avoids doubled blank lines from CRLF.
+
+Selection
+---------
+Drag mouse 1             regular selection
+Double click             select word
+Triple click             select logical/wrapped line
+Alt + drag               rectangular selection
+Shift + Alt + drag       rectangular selection when an app has mouse mode
+Shift + mouse selection  force terminal selection when an app has mouse mode
+Middle click             paste PRIMARY selection
+
+Scrollback
+----------
+Mouse wheel              scroll history four lines
+Shift+PageUp/PageDown    scroll one page
+Alt+PageUp/PageDown      scroll one page
+Alt+Up/Down              scroll one line
+Alt+U / Alt+D            scroll one page
+
+Font size
+---------
+Ctrl+Shift+PageUp/Down   increase / decrease font size
+Super+Shift+= / _        increase / decrease font size
+Ctrl+Shift+Home          reset font size
+
+Copy mode
+---------
+Alt+Escape               enter / leave Vim-style copy mode
+h j k l / arrows         move
+0 / $                    row start / end
+gg / G                   top / bottom
+Ctrl+u / Ctrl+d          half page up / down
+PageUp / PageDown        page up / down
+v / V                    visual / visual line
+y                        yank selection
+Y                        clean yank (trim trailing spaces/tabs)
+Esc / q / i / Enter      leave copy mode
+
+Helpers
+-------
+Alt+L                    choose and open URL from history
+Alt+Y                    choose and copy URL from history
+Alt+O                    choose and copy command output from history
+Alt+F4                   close terminal; confirm if a process is running
+
+Notes
+-----
+st cannot tell whether the foreground program is bash, an editor, or another
+interactive app. Paste normalization therefore applies to every paste into st.
+EOF
+
+st -c StHelp -n st-help -T 'st-reflow help' -g 92x34 \
+	-e sh -c 'less -R "$1"; rm -f "$1"' sh "$tmp" &
