@@ -1,4 +1,2 @@
 #!/bin/sh
-
-echo "exec scrot -s" >> /tmp/scrot
 exec scrot -s

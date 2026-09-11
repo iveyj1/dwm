@@ -262,6 +262,7 @@ static void zoom(const Arg *arg);
 /* variables */
 static const char broken[] = "broken";
 static char stext[256];
+static const char *fontoverride;
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
@@ -1773,7 +1774,11 @@ setup(void)
 	sh = DisplayHeight(dpy, screen);
 	root = RootWindow(dpy, screen);
 	drw = drw_create(dpy, screen, root, sw, sh);
-	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
+	if (fontoverride) {
+		const char *overridefonts[] = { fontoverride };
+		if (!drw_fontset_create(drw, overridefonts, LENGTH(overridefonts)))
+			die("no fonts could be loaded.");
+	} else if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
 	bh = drw->fonts->h + 2;
@@ -2515,8 +2520,10 @@ main(int argc, char *argv[])
 {
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
+	else if (argc == 3 && !strcmp("-fn", argv[1]))
+		fontoverride = argv[2];
 	else if (argc != 1)
-		die("usage: dwm [-v]");
+		die("usage: dwm [-v | -fn font]");
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))

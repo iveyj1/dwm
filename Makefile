@@ -68,4 +68,8 @@ uninstall:
 		${DESTDIR}${PREFIX}/bin/brightness-up ${DESTDIR}${PREFIX}/bin/brightness-down\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 
-.PHONY: all clean dist install uninstall
+check:
+	@for f in brightness-up brightness-down dwm-suspend dwm-screenshot dwm-screenshot-full dwm-keymap; do sh -n "$$f" || exit; done
+	python3 tests/helpers.py
+
+.PHONY: all clean dist install uninstall check

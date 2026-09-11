@@ -1,7 +1,11 @@
 #!/bin/sh
 # Parabolic-ish brightness increase: tiny steps when dim, larger steps when bright.
-cur=$(brightnessctl get) || exit 1
+set -eu
+cur=$(brightnessctl get) || { echo "brightness-up: cannot read backlight" >&2; exit 1; }
 max=$(brightnessctl max) || exit 1
+case $cur in ''|*[!0-9]*) echo "brightness-up: invalid brightness" >&2; exit 1;; esac
+case $max in ''|*[!0-9]*) echo "brightness-up: invalid maximum" >&2; exit 1;; esac
+[ "$max" -gt 0 ] || { echo "brightness-up: maximum must be positive" >&2; exit 1; }
 scale=700
 maxstep=20
 minstep=5
