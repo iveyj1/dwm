@@ -15,6 +15,24 @@ Run from `.xinitrc`:
 
     exec dwm
 
+Mint / Void sessions
+--------------------
+
+The binary is independent of the distribution and session launcher. On Mint,
+install libx11-dev, libxft-dev, libxinerama-dev, libx11-xcb-dev and
+libxcb-res0-dev plus a compiler/make and fontconfig/FreeType headers. On Void,
+the corresponding libraries are libX11-devel, libXft-devel, libXinerama-devel,
+libxcb-devel, fontconfig-devel and freetype-devel.
+
+Optional bindings need brightnessctl, playerctl, scrot and PipeWire's wpctl.
+The polkit agent, screen locker and status process are session responsibilities,
+not programs started by dwm. Suspend does NOT lock the screen.
+
+The separate mint-void-suckless checkout supplies an optional dwm-session
+launcher for both LightDM and startx. Use its argument-free desktop Exec entry:
+put quoted font arguments inside the launcher, not through Xsession's command
+string expansion. This repository's make install never registers a session.
+
 Local changes
 -------------
 
@@ -25,7 +43,7 @@ Local changes
 - Ghostty terminal launcher and centered floating `st` launcher.
 - Brave browser and pcmanfm launchers.
 - Audio, media, brightness, screenshot, and suspend key bindings.
-- `dwm-suspend` helper chooses `loginctl suspend` when present and falls back to `systemctl suspend`.
+- `dwm-suspend` uses `systemctl suspend` with running systemd, or `loginctl suspend` with identifiable elogind; backend failures are not retried.
 - `dwm-keymap` dmenu cheat sheet on `Super+Shift+K`.
 
 Key documentation
