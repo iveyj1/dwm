@@ -28,7 +28,7 @@ Optional bindings need brightnessctl, playerctl, scrot and PipeWire's wpctl.
 The polkit agent, screen locker and status process are session responsibilities,
 not programs started by dwm. Suspend does NOT lock the screen.
 
-The separate mint-void-suckless checkout supplies an optional dwm-session
+The separate configure-sl checkout supplies an optional dwm-session
 launcher for both LightDM and startx. Use its argument-free desktop Exec entry:
 put quoted font arguments inside the launcher, not through Xsession's command
 string expansion. This repository's make install never registers a session.
