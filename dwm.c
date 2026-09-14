@@ -1389,7 +1389,7 @@ nametag(const Arg *arg)
 	int i;
 
 	errno = 0;
-	if (!(f = popen("dmenu < /dev/null", "r"))) {
+	if (!(f = popen("if command -v dmenu-font >/dev/null 2>&1; then dmenu-font; else dmenu; fi < /dev/null", "r"))) {
 		fprintf(stderr, "dwm: popen 'dmenu < /dev/null' failed%s%s\n",
 		        errno ? ": " : "", errno ? strerror(errno) : "");
 		return;

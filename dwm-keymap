@@ -2,6 +2,9 @@
 # A searchable cheat sheet.  Escape cancels dmenu; selected launchable entries
 # are executed after dmenu exits, so the keymap always closes first.
 
+menu=dmenu
+command -v dmenu-font >/dev/null 2>&1 && menu=dmenu-font
+
 choice=$(printf '%s\n' \
 	'DWM  Super+P              application launcher' \
 	'DWM  Super+Return         st terminal' \
@@ -18,7 +21,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+Z              promote window to master' \
 	'DWM  Super+T / F / M      tile / floating / monocle layout' \
 	'DWM  Super+Space          cycle layouts' \
-	'DWM  Super+N              rename tag' \
+	'DWM  Super+N              rename tag (configured menu font)' \
 	'DWM  Super+Shift+Space    toggle focused window floating' \
 	'DWM  Super+Tab            return to previous tag view' \
 	'DWM  Super+1..9           view tag 1..9' \
@@ -33,6 +36,10 @@ choice=$(printf '%s\n' \
 	'DWM  Super+Shift+H        show st-reflow help' \
 	'DWM  Super+Q              close focused window' \
 	'DWM  Super+Shift+Q        quit dwm' \
+	'DWM  Super+F1             toggle speaker mute' \
+	'DWM  Super+F2             volume down 5%' \
+	'DWM  Super+F3             volume up 5% (maximum 100%)' \
+	'DWM  Super+F4             toggle microphone mute' \
 	'DWM  Volume keys          volume up/down, speaker/microphone mute' \
 	'DWM  Media keys           play/pause, previous, next, stop' \
 	'DWM  Brightness keys      screen brightness up / down' \
@@ -69,7 +76,7 @@ choice=$(printf '%s\n' \
 	'ST   Alt+Y                 choose and copy URL from history' \
 	'ST   Alt+O                 choose and copy a history line' \
 	'ST   Alt+F4                close; confirm if a process is running' |
-	dmenu -c -l 37 -p 'Keymap (Esc to close)' -fn 'DroidSansM Nerd Font Mono:size=14' \
+	"$menu" -c -l 37 -p 'Keymap (Esc to close)' \
 		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
 
 case $choice in

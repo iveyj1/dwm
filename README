@@ -36,7 +36,10 @@ string expansion. This repository's make install never registers a session.
 Local changes
 -------------
 
-- DroidSansM Nerd Font Mono defaults for dwm and dmenu.
+- Bar fallback is monospace:size=11; the external session launcher reads
+  dwm.font from Xresources and passes -fn. No hardcoded menu-font override:
+  dmenu_run and help/tag menus use dmenu-font when installed (plain dmenu fallback).
+  Set machine fonts in ~/.config/X11/machine.resources; see configure-sl README.
 - Tags can be renamed at runtime with `Super+N`.
 - Pertag layout state.
 - Window swallowing support plus `dwm-spawn` helper.
