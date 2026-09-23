@@ -76,7 +76,7 @@ choice=$(printf '%s\n' \
 	'ST   Alt+Y                 choose and copy URL from history' \
 	'ST   Alt+O                 choose and copy a history line' \
 	'ST   Alt+F4                close; confirm if a process is running' |
-	"$menu" -c -l 37 -p 'Keymap (Esc to close)' \
+	"$menu" -s -c -l 37 -p 'Keymap (Esc to close)' \
 		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
 
 case $choice in
