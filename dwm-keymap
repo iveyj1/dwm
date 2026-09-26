@@ -1,26 +1,31 @@
 #!/bin/sh
 # A searchable cheat sheet.  Escape cancels dmenu; selected launchable entries
 # are executed after dmenu exits, so the keymap always closes first.
+# Use a short, full-width list: centered dmenu caps width at 900px and does
+# not clamp its height to the monitor. Search or PgUp/PgDn for more entries.
+# Override for small screens / large fonts: DWM_KEYMAP_LINES=8 dwm-keymap.
+lines=${DWM_KEYMAP_LINES:-24}
+case $lines in ''|*[!0-9]*|0) lines=24;; esac
 
 menu=dmenu
 command -v dmenu-font >/dev/null 2>&1 && menu=dmenu-font
 
 choice=$(printf '%s\n' \
-	'DWM  Super+P              application launcher' \
+	'DWM  Super+Shift+P        application launcher' \
 	'DWM  Super+Return         st terminal' \
 	'DWM  Super+Shift+Return   Kitty terminal' \
 	'DWM  Super+Ctrl+Shift+Return Ghostty terminal' \
 	'DWM  Super+S              suspend laptop' \
 	'DWM  Super+Shift+S        floating st terminal' \
-	'DWM  Super+B              browser' \
-	'DWM  Super+E              file manager' \
-	'DWM  Super+Shift+B        toggle bar' \
+	'DWM  Super+Shift+B        browser' \
+	'DWM  Super+Shift+E        file manager' \
+	'DWM  Super+B              toggle bar' \
 	'DWM  Super+J / Super+K    focus next / previous' \
 	'DWM  Super+I / Super+D    change master count' \
 	'DWM  Super+H / Super+L    shrink / grow master area' \
 	'DWM  Super+Z              promote window to master' \
 	'DWM  Super+T / F / M      tile / floating / monocle layout' \
-	'DWM  Super+Space          cycle layouts' \
+	'DWM  Super+Space          toggle previous layout' \
 	'DWM  Super+N              rename tag (configured menu font)' \
 	'DWM  Super+Shift+Space    toggle focused window floating' \
 	'DWM  Super+Tab            return to previous tag view' \
@@ -48,7 +53,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+mouse 1/2/3   move / float / resize window' \
 	'DWM  Tag bar mouse 1/3    view tag / toggle tag in view' \
 	'DWM  Super+tag mouse 1/3  move window / toggle window on tag' \
-	'DWM  Layout mouse 1/3     cycle layout / monocle' \
+	'DWM  Layout mouse 1/3     previous layout / monocle' \
 	'DWM  Title/status mouse 2 promote window / open st' \
 	'ST   Ctrl+Shift+C / V      copy / clipboard paste' \
 	'ST   Ctrl+Shift+X          clean copy (trim trailing spaces)' \
@@ -68,19 +73,29 @@ choice=$(printf '%s\n' \
 	'ST   Alt+drag              rectangular selection (add Shift in mouse apps)' \
 	'ST   Alt+Escape            enter / leave Vim-style copy mode' \
 	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
-	'ST   Copy mode: gg/G top/bottom; Ctrl+u/d half page' \
+	'ST   Copy mode: w/e/b next word/end/previous word' \
+	'ST   Copy mode: W/E/B same, whitespace-delimited WORDs' \
+	'ST   Copy mode: ^/% first/last printable character' \
+	'ST   Copy mode: gg/G oldest history/live cursor' \
+	'ST   Copy mode: count repeats motion; count+gg/G go to row' \
+	'ST   Copy mode: Ctrl+u/d half page up/down' \
 	'ST   Copy mode: PgUp/PgDn; v/V regular/line; Ctrl+v rectangle' \
-	'ST   Copy mode: y yank; Y clean yank' \
+	'ST   Copy mode: y yank; Y or Ctrl+Shift+X clean yank' \
 	'ST   Copy mode: Esc/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose and open URL from history' \
 	'ST   Alt+Y                 choose and copy URL from history' \
 	'ST   Alt+O                 choose and copy a history line' \
-	'ST   Alt+F4                close; confirm if a process is running' |
 	"$menu" -s -c -l 37 -p 'Keymap (Esc to close)' \
+	'ST   Alt+F4                close; confirm if a process is running' \
+	'ST   Break                 send break' \
+	'ST   Ctrl+Print            toggle printer mode' \
+	'ST   Print / Shift+Print   print selection/screen (dwm intercepts)' \
+	'ST   Ctrl+Shift+NumLock    toggle application keypad handling' |
+	"$menu" -i -l "$lines" -p 'Keys: type to filter; PgUp/Dn; Esc'  \
 		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
 
 case $choice in
-'DWM  Super+P '* ) exec dmenu_run ;;
+'DWM  Super+Shift+P '* ) exec dmenu_run ;;
 'DWM  Super+Return '* ) cd "$HOME" && exec st ;;
 'DWM  Super+Shift+Return '* ) cd "$HOME" && exec kitty ;;
 'DWM  Super+Ctrl+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
@@ -88,10 +103,10 @@ case $choice in
 'DWM  Super+S '* ) exec dwm-suspend ;;
 'DWM  Print '* ) cd "$HOME" && exec dwm-screenshot ;;
 'DWM  Shift+Print '* ) cd "$HOME" && exec dwm-screenshot-full ;;
-'DWM  Super+B '* )
+'DWM  Super+Shift+B '* )
 	command -v brave-browser >/dev/null 2>&1 && exec brave-browser
 	command -v brave >/dev/null 2>&1 && exec brave
 	exec flatpak run com.brave.Browser
 	;;
-'DWM  Super+E '* ) exec pcmanfm ;;
+'DWM  Super+Shift+E '* ) exec pcmanfm ;;
 esac

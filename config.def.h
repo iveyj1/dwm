@@ -39,7 +39,7 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact     = 0.50; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -111,17 +111,17 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_MonBrightnessDown,spawn, {.v = brightdowncmd } },
     { 0,                            XK_Print,  spawn,          {.v = screenshotcmd } },
     { ShiftMask,                    XK_Print,  spawn,          {.v = screenshotfullcmd } },
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = term1cmd } },
-	{ MODKEY|ShiftMask|ControlMask,    XK_Return, spawn,          {.v = term2cmd } },
+	{ MODKEY|ShiftMask|ControlMask, XK_Return, spawn,          {.v = term2cmd } },
 	{ MODKEY,                       XK_s,      spawn,          {.v = sleepcmd } },
 	{ MODKEY|ShiftMask,             XK_s,      spawnfloating,  {.v = &floatwin } },
 	{ MODKEY|ShiftMask,             XK_k,      spawn,          {.v = keymapcmd } },
 	{ MODKEY|ShiftMask,             XK_h,      spawn,          {.v = sthelpcmd } },
-	{ MODKEY,                       XK_b,      spawn,          {.v = browsercmd} },
-    { MODKEY,                       XK_e,      spawn,          {.v = fmcmd} },
-	{ MODKEY|ShiftMask,             XK_b,      togglebar,      {0} },
+	{ MODKEY|ShiftMask,             XK_b,      spawn,          {.v = browsercmd} },
+    { MODKEY|ShiftMask,             XK_e,      spawn,          {.v = fmcmd} },
+	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },

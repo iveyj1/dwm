@@ -52,20 +52,32 @@ Local changes
 Key documentation
 -----------------
 
-Press `Super+Shift+K` to open the searchable keymap. Press Escape to close it. Launchable entries run after selection. The centered menu requires this local patched dmenu with `-c` support.
+Press `Super+Shift+K` to open the searchable keymap. Type to filter (case-insensitive), use PageUp/PageDown to page, and Escape to close. Launchable entries run after selection.
+
+The help uses 12 rows and full monitor width, preserving the configured menu font.
+The old centered menu requested 37 rows plus the prompt without a screen-height
+limit, and capped width at 900 pixels: large fonts clipped both ends vertically
+and truncated words horizontally. For smaller screens or larger fonts, try
+`DWM_KEYMAP_LINES=8 dwm-keymap`. A general dmenu fix would clamp row count to the
+selected monitor height and size centered width to the longest entry (bounded by
+monitor width). dmenu does not wrap entries; filter to narrow the list, or use a
+wrapping terminal pager for long-form help. `Super+Shift+H` opens the st pager;
+PageUp/PageDown scroll, `/` searches, `q` closes. Its long lines wrap even when
+LESS normally enables horizontal chopping.
 
 Maintenance rule: any change to dwm key/button bindings, or to st-reflow shortcuts shown in the help, must update `dwm-keymap` in the same change.
 
 Common bindings:
 
-- `Super+P`: application launcher
+- `Super+Shift+P`: application launcher
 - `Super+Return`: st terminal
-- `Super+Shift+Return`: Ghostty terminal
+- `Super+Shift+Return`: Kitty terminal
+- `Super+Ctrl+Shift+Return`: Ghostty terminal
 - `Super+S`: suspend
 - `Super+Shift+S`: centered floating st terminal
-- `Super+B`: browser
-- `Super+E`: file manager
-- `Super+Shift+B`: toggle bar
+- `Super+Shift+B`: browser
+- `Super+B`: toggle bar
+- `Super+Shift+E`: file manager
 - `Super+J/K`: focus next/previous client
 - `Super+H/L`: shrink/grow master area
 - `Super+T/F/M`: tile/floating/monocle
