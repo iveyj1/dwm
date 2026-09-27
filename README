@@ -24,7 +24,7 @@ libxcb-res0-dev plus a compiler/make and fontconfig/FreeType headers. On Void,
 the corresponding libraries are libX11-devel, libXft-devel, libXinerama-devel,
 libxcb-devel, fontconfig-devel and freetype-devel.
 
-Optional bindings need brightnessctl, playerctl, scrot and PipeWire's wpctl.
+Optional bindings need brightnessctl, awk, playerctl, scrot and PipeWire's wpctl.
 The polkit agent, screen locker and status process are session responsibilities,
 not programs started by dwm. Suspend does NOT lock the screen.
 
@@ -46,6 +46,12 @@ Local changes
 - Ghostty terminal launcher and centered floating `st` launcher.
 - Brave browser and pcmanfm launchers.
 - Audio, media, brightness, screenshot, and suspend key bindings.
+- Brightness keys select adjacent absolute levels: 1, 1000, 2000, 4000,
+  8000, 16000, 32000, 64000, and the device maximum (96000 on this machine).
+  Levels above the maximum are skipped. Down never turns the backlight off.
+  Keep the level lists in both brightness helpers synchronized.
+  Disable competing ACPI brightness handlers when dwm owns the brightness keys;
+  otherwise a single press can trigger two conflicting backlight changes.
 - `dwm-suspend` uses `systemctl suspend` with running systemd, or `loginctl suspend` with identifiable elogind; backend failures are not retried.
 - `dwm-keymap` dmenu cheat sheet on `Super+Shift+K`.
 

@@ -1,18 +1,21 @@
 #!/bin/sh
-# Parabolic-ish brightness decrease: tiny steps when dim, larger steps when bright.
+# Previous absolute level
 set -eu
 cur=$(brightnessctl get) || { echo "brightness-down: cannot read backlight" >&2; exit 1; }
 max=$(brightnessctl max) || exit 1
 case $cur in ''|*[!0-9]*) echo "brightness-down: invalid brightness" >&2; exit 1;; esac
 case $max in ''|*[!0-9]*) echo "brightness-down: invalid maximum" >&2; exit 1;; esac
 [ "$max" -gt 0 ] || { echo "brightness-down: maximum must be positive" >&2; exit 1; }
-scale=700
-maxstep=20
-minstep=5
-pct=$(( cur * 100 / max ))
-step=$(( 1 + pct * pct / $scale ))
-
-[ "$step" -lt $minstep ] && step=$minstep
-[ "$step" -gt $maxstep ] && step=$maxstep
-
-exec brightnessctl set "${step}%-"
+target=$(awk -v cur="$cur" -v max="$max" 'BEGIN {
+    target = 1
+    # split("1 1000 2000 4000 8000 16000 32000 64000", levels, " ")
+    split("1 2000 8000 16000 32000 64000", levels, " ")
+    # for (i = 1; i <= 8; i++) {
+    for (i = 1; i <= 6; i++) {
+        if (levels[i] >= max || levels[i] >= cur) break
+        target = levels[i]
+    }
+    if (cur > max) target = max
+    printf "%.0f\n", target
+}')
+exec brightnessctl set "$target"

@@ -16,7 +16,8 @@ class Helpers(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.base = Path(self.tmp.name)
         self.env = dict(os.environ, PATH=str(self.base), OUT=str(self.base / 'out'))
-        (self.base / 'grep').symlink_to(shutil.which('grep'))
+        for command in ('grep', 'awk'):
+            (self.base / command).symlink_to(shutil.which(command))
         self.mock('brightnessctl', 'case $1 in\n'
                   'get) printf "%s" "${CUR:-50}";;\n'
                   'max) printf "%s" "${MAX:-100}";;\n'
@@ -31,13 +32,36 @@ class Helpers(unittest.TestCase):
         return subprocess.run(['/bin/sh', str(ROOT / helper)], text=True,
                               capture_output=True, timeout=5, env=dict(self.env, **env))
 
+    def brightness(self, direction, cur, maximum):
+        result = self.run_helper('brightness-' + direction,
+                                 CUR=str(cur), MAX=str(maximum))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return int((self.base / 'out').read_text())
+
     def test_brightness_curve(self):
-        for cur, step in [('0', '5'), ('50', '5'), ('100', '15')]:
-            for helper, expected in [('brightness-up', f'+{step}%'),
-                                     ('brightness-down', f'{step}%-')]:
-                result = self.run_helper(helper, CUR=cur)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual((self.base / 'out').read_text(), expected)
+        for cur, down, up in [(0, 1, 1), (1, 1, 1000), (500, 1, 1000),
+                              (1000, 1, 2000), (3000, 2000, 4000),
+                              (64000, 32000, 96000), (96000, 64000, 96000)]:
+            self.assertEqual(self.brightness('down', cur, 96000), down)
+            self.assertEqual(self.brightness('up', cur, 96000), up)
+
+    def test_brightness_ladder(self):
+        for maximum in (1, 2, 100, 1000, 3000, 64000, 96000):
+            levels = sorted({1, maximum} | {
+                level for level in (1000, 2000, 4000, 8000, 16000, 32000, 64000)
+                if level < maximum
+            })
+            # Every rung is reachable in both directions, including both endpoints.
+            for i, cur in enumerate(levels):
+                with self.subTest(maximum=maximum, cur=cur):
+                    self.assertEqual(self.brightness('up', cur, maximum),
+                                     levels[min(i + 1, len(levels) - 1)])
+                    self.assertEqual(self.brightness('down', cur, maximum),
+                                     levels[max(i - 1, 0)])
+            for direction in ('up', 'down'):
+                self.assertEqual(self.brightness(direction, 0, maximum), 1)
+                self.assertEqual(self.brightness(direction, maximum + 1, maximum),
+                                 maximum)
 
     def test_invalid_brightness(self):
         for helper in ('brightness-up', 'brightness-down'):
