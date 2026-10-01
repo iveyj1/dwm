@@ -58,9 +58,9 @@ Local changes
 Key documentation
 -----------------
 
-Press `Super+Shift+K` to open the searchable keymap. Type to filter (case-insensitive), use PageUp/PageDown to page, and Escape to close. Launchable entries run after selection.
+Press `Super+Shift+K` to open the searchable keymap. Type to filter (smart case: lowercase ignores case; uppercase matches case), use PageUp/PageDown to page, and Escape to close. Launchable entries run after selection.
 
-The help uses 12 rows and full monitor width, preserving the configured menu font.
+The help uses 24 rows and full monitor width, preserving the configured menu font.
 The old centered menu requested 37 rows plus the prompt without a screen-height
 limit, and capped width at 900 pixels: large fonts clipped both ends vertically
 and truncated words horizontally. For smaller screens or larger fonts, try
@@ -68,7 +68,8 @@ and truncated words horizontally. For smaller screens or larger fonts, try
 selected monitor height and size centered width to the longest entry (bounded by
 monitor width). dmenu does not wrap entries; filter to narrow the list, or use a
 wrapping terminal pager for long-form help. `Super+Shift+H` opens the st pager;
-PageUp/PageDown scroll, `/` searches, `q` closes. Its long lines wrap even when
+PageUp/PageDown scroll, `/` searches with smart case, `q` closes.
+The keymap requires this local dmenu's `-s` option; the st pager uses `less -i`. Its long lines wrap even when
 LESS normally enables horizontal chopping.
 
 Maintenance rule: any change to dwm key/button bindings, or to st-reflow shortcuts shown in the help, must update `dwm-keymap` in the same change.

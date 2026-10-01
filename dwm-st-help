@@ -15,6 +15,8 @@ CLIPBOARD workflow:
   2. Ctrl+Shift+C copies and preserves trailing spaces/tabs.
      Ctrl+Shift+X copies and trims trailing spaces/tabs from every selected line.
      In copy mode, `y` copies normally and `Y` performs the trimmed copy directly.
+     Explicit copies clear the highlight; successful y/Y/Ctrl+Shift+X also exit
+     copy mode. PRIMARY and CLIPBOARD remain available; scrollback stays put.
   3. Ctrl+Shift+V pastes CLIPBOARD.
 
 PRIMARY is the current mouse selection and is initially untrimmed. Paste it with
@@ -65,8 +67,8 @@ Ctrl+u / Ctrl+d          half page up / down
 PageUp / PageDown        page up / down
 v / V                    visual / visual line
 Ctrl+v                   visual rectangular block
-y                        yank selection
-Y / Ctrl+Shift+X        clean yank (trim trailing spaces/tabs)
+y                        yank selection and exit copy mode
+Y / Ctrl+Shift+X        clean yank and exit (trim trailing spaces/tabs)
 Esc/q/i/Enter/Ctrl+c     leave copy mode
 
 Copy mode is disabled on the alternate screen; resizing exits copy mode.
@@ -88,10 +90,11 @@ Ctrl+Shift+NumLock       toggle application keypad handling
 Notes
 -----
 Help viewer: arrows/PgUp/PgDn scroll, / searches, q closes.
+Search ignores case unless the pattern contains an uppercase letter.
 less wraps long lines; do not use its -S option for this help.
 st cannot tell whether the foreground program is bash, an editor, or another
 interactive app. Paste normalization therefore applies to every paste into st.
 EOF
 
 st -c StHelp -n st-help -T 'st-reflow help' -g 92x34 \
-	-e sh -c 'LESS= less -R "$1"; rm -f "$1"' sh "$tmp" &
+	-e sh -c 'LESS= less -R -i "$1"; rm -f "$1"' sh "$tmp" &

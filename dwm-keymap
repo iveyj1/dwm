@@ -55,8 +55,8 @@ choice=$(printf '%s\n' \
 	'DWM  Super+tag mouse 1/3  move window / toggle window on tag' \
 	'DWM  Layout mouse 1/3     previous layout / monocle' \
 	'DWM  Title/status mouse 2 promote window / open st' \
-	'ST   Ctrl+Shift+C / V      copy / clipboard paste' \
-	'ST   Ctrl+Shift+X          clean copy (trim trailing spaces)' \
+	'ST   Ctrl+Shift+C / V      copy and clear selection / paste' \
+	'ST   Ctrl+Shift+X          clean copy and clear selection' \
 	'ST   Ctrl+Shift+Y          paste primary selection' \
 	'ST   Shift+Insert          paste primary selection' \
 	'ST   Shift+PageUp/Down     scroll history one page' \
@@ -80,18 +80,17 @@ choice=$(printf '%s\n' \
 	'ST   Copy mode: count repeats motion; count+gg/G go to row' \
 	'ST   Copy mode: Ctrl+u/d half page up/down' \
 	'ST   Copy mode: PgUp/PgDn; v/V regular/line; Ctrl+v rectangle' \
-	'ST   Copy mode: y yank; Y or Ctrl+Shift+X clean yank' \
+	'ST   Copy mode: y yank; Y/Ctrl+Shift+X clean yank; both exit' \
 	'ST   Copy mode: Esc/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose and open URL from history' \
 	'ST   Alt+Y                 choose and copy URL from history' \
 	'ST   Alt+O                 choose and copy a history line' \
-	"$menu" -s -c -l 37 -p 'Keymap (Esc to close)' \
 	'ST   Alt+F4                close; confirm if a process is running' \
 	'ST   Break                 send break' \
 	'ST   Ctrl+Print            toggle printer mode' \
 	'ST   Print / Shift+Print   print selection/screen (dwm intercepts)' \
 	'ST   Ctrl+Shift+NumLock    toggle application keypad handling' |
-	"$menu" -i -l "$lines" -p 'Keys: type to filter; PgUp/Dn; Esc'  \
+	"$menu" -s -l "$lines" -p 'Keys: type to filter; PgUp/Dn; Esc'  \
 		-nb '#222222' -nf '#bbbbbb' -sb '#005577' -sf '#eeeeee') || exit 0
 
 case $choice in

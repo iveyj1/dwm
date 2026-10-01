@@ -38,8 +38,11 @@ class Keymap(unittest.TestCase):
         result = self.run_menu()
         args = result['args'].splitlines()
         self.assertNotIn('-c', args)
-        self.assertIn('-i', args)
-        self.assertEqual(args[args.index('-l') + 1], '12')
+        self.assertIn('-s', args)
+        self.assertNotIn('-i', args)
+        self.assertEqual(args[args.index('-l') + 1], '24')
+        for entry in result['entries'].splitlines():
+            self.assertTrue(entry.startswith(('DWM  ', 'ST   ')), entry)
         for text in ('Super+Shift+P', 'Super+Shift+E', 'Super+B              toggle bar',
                      'Copy mode: W/E/B', 'Ctrl+Shift+NumLock', 'dwm intercepts'):
             self.assertIn(text, result['entries'])
@@ -57,8 +60,12 @@ class Keymap(unittest.TestCase):
         entry = next(line for line in entries if line.endswith('toggle bar'))
         self.assertEqual(self.run_menu(entry)['action'], '')
 
+    def test_st_pager_smartcase(self):
+        script = (ROOT / 'dwm-st-help').read_text()
+        self.assertIn('LESS= less -R -i "$1"', script)
+
     def test_row_override(self):
-        for value, expected in [('8', '8'), ('invalid', '12'), ('0', '12')]:
+        for value, expected in [('8', '8'), ('invalid', '24'), ('0', '24')]:
             args = self.run_menu(lines=value)['args'].splitlines()
             self.assertEqual(args[args.index('-l') + 1], expected)
 
