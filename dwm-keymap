@@ -107,5 +107,6 @@ case $choice in
 	command -v brave >/dev/null 2>&1 && exec brave
 	exec flatpak run com.brave.Browser
 	;;
+'DWM  Super+E '* ) cd "$HOME" && exec st -e spf ;;
 'DWM  Super+Shift+E '* ) exec pcmanfm ;;
 esac

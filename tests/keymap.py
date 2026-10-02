@@ -19,6 +19,8 @@ class Keymap(unittest.TestCase):
                               'printf "%s\\n" "$SELECTION"\n',
                 'dmenu_run': 'echo launcher > "$CAPTURE/action"\n',
                 'pcmanfm': 'echo files > "$CAPTURE/action"\n',
+                'st': '[ "$PWD" = "$HOME" ] || exit 1\n'
+                      'printf "st %s\\n" "$*" > "$CAPTURE/action"\n',
                 'brave-browser': 'echo browser > "$CAPTURE/action"\n',
             }.items():
                 executable = tmp / name
@@ -46,7 +48,7 @@ class Keymap(unittest.TestCase):
         for text in ('Super+Shift+P', 'Super+Shift+E', 'Super+B              toggle bar',
                      'Copy mode: W/E/B', 'Ctrl+Shift+NumLock', 'dwm intercepts'):
             self.assertIn(text, result['entries'])
-        for stale in ('Super+P ', 'also toggles bar', 'also opens browser', 'Super+E '):
+        for stale in ('Super+P ', 'also toggles bar', 'also opens browser'):
             self.assertNotIn(stale, result['entries'])
         self.assertEqual(result['action'], '')
 
@@ -54,6 +56,7 @@ class Keymap(unittest.TestCase):
         entries = self.run_menu()['entries'].splitlines()
         for label, action in [('application launcher', 'launcher'),
                               ('file manager', 'files'),
+                              ('spf in st (home directory)', 'st -e spf'),
                               ('browser', 'browser')]:
             entry = next(line for line in entries if line.endswith(label))
             self.assertEqual(self.run_menu(entry)['action'].strip(), action)

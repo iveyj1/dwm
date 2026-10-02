@@ -32,6 +32,8 @@ static const Rule rules[] = {
 	{ "Gimp",                    NULL,    NULL,          0,         1,          0,           0,        -1 },
 	{ "StHelp",                  NULL,    NULL,          0,         1,          1,           1,        -1 },
 	{ "St",                      NULL,    NULL,          0,         0,          1,           0,        -1 },
+	{ "Swallow",                 NULL,    NULL,          0,         0,          1,           0,        -1 },
+	{ "NoSwallow",               NULL,    NULL,          0,         0,          1,           1,        -1 },
 	{ "st-256color",             NULL,    NULL,          0,         0,          1,           0,        -1 },
 	{ "kitty",                   NULL,    NULL,          0,         0,          1,           0,        -1 },
 	{ "com.mitchellh.ghostty",   NULL,    NULL,          0,         0,          1,           0,        -1 },
@@ -72,11 +74,11 @@ static const char *term1cmd[]  = { "sh", "-c" ,"cd $HOME;exec kitty", NULL };
 static const char *term2cmd[]  = { "sh", "-c" ,"cd $HOME;exec ghostty", NULL };
 static const char *keymapcmd[] = { "/bin/sh", "-c", "dwm-keymap", NULL };
 static const char *sthelpcmd[] = { "/bin/sh", "-c", "dwm-st-help", NULL };
-static const char *fmcmd[] = { "pcmanfm", NULL};
+static const char *fmcmd[] = { "sh", "-c", "cd \"$HOME\" && 'dwm-fmgr'", NULL };
 static const char *floatcmd[] = { "sh", "-c" ,"cd $HOME;exec st", NULL };
 /* Negative x/y are offsets from the right/bottom edge of the selected monitor.
  * Set centered to 1 to ignore x/y and center on the selected monitor. */
-static const FloatingWindow floatwin = { floatcmd, -820, 20, 800, 500, 1 };
+static const FloatingWindow floatwin = { floatcmd, -1000, 20, 800, 500, 1 };
 static const char *browsercmd[]  = { "sh", "-c", "command -v brave-browser >/dev/null 2>&1 && exec brave-browser || command -v brave >/dev/null 2>&1 && exec brave || exec flatpak run com.brave.Browser", NULL };
 static const char *volupcmd[]    = { "wpctl", "set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+", NULL };
 static const char *voldowncmd[]  = { "wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-", NULL };
