@@ -84,8 +84,7 @@ Common bindings:
 - `Super+Shift+S`: centered floating st terminal
 - `Super+Shift+B`: browser
 - `Super+B`: toggle bar
-- `Super+E`: spf in st, starting in `$HOME` (requires `spf` on PATH; closes on exit)
-- `Super+Shift+E`: pcmanfm file manager
+- `Super+Shift+E`: file manager
 - `Super+J/K`: focus next/previous client
 - `Super+H/L`: shrink/grow master area
 - `Super+T/F/M`: tile/floating/monocle
