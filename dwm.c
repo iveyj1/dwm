@@ -21,6 +21,8 @@
  * To understand everything else, start reading main().
  */
 #include <errno.h>
+#include <fcntl.h>
+#include <poll.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -203,6 +205,7 @@ static void monocle(Monitor *m);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
 static void nametag(const Arg *arg);
+static void readtagname(void);
 static Client *nexttiled(Client *c);
 static void pop(Client *c);
 static void propertynotify(XEvent *e);
@@ -299,6 +302,12 @@ static unsigned int pendingspawntags;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
+
+/* One asynchronous rename at a time; snapshot tags, not a Monitor pointer. */
+static int tagnamefd = -1, tagnamedone;
+static unsigned int tagnamemask;
+static size_t tagnamelen;
+static char tagnamebuf[MAX_TAGLEN];
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
@@ -1384,28 +1393,82 @@ movemouse(const Arg *arg)
 void
 nametag(const Arg *arg)
 {
-	char *p, name[MAX_TAGLEN];
-	FILE *f;
-	int i;
+	int fd[2];
+	pid_t pid;
 
-	errno = 0;
-	if (!(f = popen("if command -v dmenu-font >/dev/null 2>&1; then dmenu-font; else dmenu; fi < /dev/null", "r"))) {
-		fprintf(stderr, "dwm: popen 'dmenu < /dev/null' failed%s%s\n",
-		        errno ? ": " : "", errno ? strerror(errno) : "");
+	if (tagnamefd >= 0)
+		return;
+	if (pipe(fd) < 0) {
+		perror("dwm: rename pipe");
 		return;
 	}
-	if (!(p = fgets(name, sizeof name, f)) && (i = errno) && ferror(f))
-		fprintf(stderr, "dwm: fgets failed: %s\n", strerror(i));
-	if (pclose(f) < 0)
-		fprintf(stderr, "dwm: pclose failed: %s\n", strerror(errno));
-	if (!p)
+	if (fcntl(fd[0], F_SETFL, O_NONBLOCK) < 0 ||
+	    fcntl(fd[0], F_SETFD, FD_CLOEXEC) < 0) {
+		perror("dwm: rename pipe flags");
+		close(fd[0]);
+		close(fd[1]);
 		return;
-	if ((p = strchr(name, '\n')))
-		*p = '\0';
+	}
+	pid = fork();
+	if (pid == 0) {
+		close(fd[0]);
+		close(ConnectionNumber(dpy));
+		if (dup2(fd[1], STDOUT_FILENO) < 0)
+			_exit(1);
+		if (fd[1] != STDOUT_FILENO)
+			close(fd[1]);
+		setsid();
+		execl("/bin/sh", "sh", "-c",
+		      "if command -v dmenu-font >/dev/null 2>&1; then "
+		      "exec dmenu-font -p 'Rename tag (Esc cancels)'; else "
+		      "exec dmenu -p 'Rename tag (Esc cancels)'; fi < /dev/null",
+		      (char *)NULL);
+		_exit(127);
+	}
+	close(fd[1]);
+	if (pid < 0) {
+		perror("dwm: rename fork");
+		close(fd[0]);
+		return;
+	}
+	tagnamefd = fd[0];
+	tagnamemask = selmon->tagset[selmon->seltags];
+	tagnamelen = 0;
+	tagnamedone = 0;
+}
 
+void
+readtagname(void)
+{
+	char buf[256];
+	ssize_t n;
+	size_t j;
+	unsigned int i;
+
+	/* Bound each read so an unexpected writer cannot starve X events. */
+	n = read(tagnamefd, buf, sizeof buf);
+	if (n > 0) {
+		for (j = 0; j < (size_t)n; j++) {
+			if (tagnamedone)
+				break;
+			if (buf[j] == '\n')
+				tagnamedone = 1;
+			else if (tagnamelen < sizeof tagnamebuf - 1)
+				tagnamebuf[tagnamelen++] = buf[j];
+		}
+		return;
+	}
+	if (n < 0 && (errno == EAGAIN || errno == EINTR))
+		return;
+	close(tagnamefd);
+	tagnamefd = -1;
+	/* Escape, failed exec, or incomplete output leaves the names alone. */
+	if (n != 0 || !tagnamedone)
+		return;
+	tagnamebuf[tagnamelen] = '\0';
 	for (i = 0; i < LENGTH(tags); i++)
-		if (selmon->tagset[selmon->seltags] & (1 << i))
-			strcpy(tags[i], name);
+		if (tagnamemask & (1U << i))
+			strcpy(tags[i], tagnamebuf);
 	drawbars();
 }
 
@@ -1593,11 +1656,39 @@ void
 run(void)
 {
 	XEvent ev;
-	/* main event loop */
+	struct pollfd fds[2];
+	int ready;
+
 	XSync(dpy, False);
-	while (running && !XNextEvent(dpy, &ev))
-		if (handler[ev.type])
-			handler[ev.type](&ev); /* call handler */
+	while (running) {
+		/* Service buffered X events without blocking on a menu subprocess. */
+		if (XPending(dpy)) {
+			XNextEvent(dpy, &ev);
+			if (handler[ev.type])
+				handler[ev.type](&ev);
+			if (tagnamefd >= 0)
+				readtagname();
+			continue;
+		}
+		fds[0].fd = ConnectionNumber(dpy);
+		fds[0].events = POLLIN;
+		fds[1].fd = tagnamefd;
+		fds[1].events = POLLIN;
+		ready = poll(fds, LENGTH(fds), -1);
+		if (ready < 0) {
+			if (errno == EINTR)
+				continue;
+			die("dwm: poll: %s", strerror(errno));
+		}
+		if (tagnamefd >= 0 && fds[1].revents)
+			readtagname();
+		if (fds[0].revents & (POLLERR | POLLHUP | POLLNVAL))
+			die("dwm: X connection closed");
+	}
+	if (tagnamefd >= 0) {
+		close(tagnamefd);
+		tagnamefd = -1;
+	}
 }
 
 void

@@ -18,6 +18,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+S              suspend laptop' \
 	'DWM  Super+Shift+S        floating st terminal' \
 	'DWM  Super+Shift+B        browser' \
+	'DWM  Super+E              spf in st (home directory)' \
 	'DWM  Super+Shift+E        file manager' \
 	'DWM  Super+B              toggle bar' \
 	'DWM  Super+J / Super+K    focus next / previous' \
@@ -26,7 +27,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+Z              promote window to master' \
 	'DWM  Super+T / F / M      tile / floating / monocle layout' \
 	'DWM  Super+Space          toggle previous layout' \
-	'DWM  Super+N              rename tag (configured menu font)' \
+	'DWM  Super+N              rename tag (Esc cancels; nonblocking)' \
 	'DWM  Super+Shift+Space    toggle focused window floating' \
 	'DWM  Super+Tab            return to previous tag view' \
 	'DWM  Super+1..9           view tag 1..9' \

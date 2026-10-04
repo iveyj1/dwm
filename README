@@ -40,14 +40,19 @@ Local changes
   dwm.font from Xresources and passes -fn. No hardcoded menu-font override:
   dmenu_run and help/tag menus use dmenu-font when installed (plain dmenu fallback).
   Set machine fonts in ~/.config/X11/machine.resources; see configure-sl README.
-- Tags can be renamed at runtime with `Super+N`.
+- Tags can be renamed at runtime with `Super+N`. The labeled dmenu prompt
+  runs asynchronously: dwm continues processing events while it is open.
+  Enter confirms; Escape cancels. Only one rename runs at a time, and it
+  applies to the tags selected when the prompt opened, even if the view changes.
+  dmenu still grabs the keyboard while open; if it hangs, killing dmenu from
+  a text console/SSH releases that grab. This does not fix an X/input freeze.
 - Pertag layout state.
 - Window swallowing support plus `dwm-spawn` helper.
 - Ghostty terminal launcher and centered floating `st` launcher.
 - Brave browser and pcmanfm launchers.
 - Audio, media, brightness, screenshot, and suspend key bindings.
-- Brightness keys select adjacent absolute levels: 1, 1000, 2000, 4000,
-  8000, 16000, 32000, 64000, and the device maximum (96000 on this machine).
+- Brightness keys select adjacent absolute levels: 1, 2000, 8000, 16000,
+  32000, 64000, and the device maximum (96000 on this machine).
   Levels above the maximum are skipped. Down never turns the backlight off.
   Keep the level lists in both brightness helpers synchronized.
   Disable competing ACPI brightness handlers when dwm owns the brightness keys;

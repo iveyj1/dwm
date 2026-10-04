@@ -76,5 +76,6 @@ check:
 	@for f in brightness-up brightness-down dwm-suspend dwm-screenshot dwm-screenshot-full dwm-keymap dwm-st-help dwm-fmgr; do sh -n "$$f" || exit; done
 	python3 tests/helpers.py
 	python3 tests/keymap.py
+	python3 tests/rename.py
 
 .PHONY: all clean dist install uninstall check

@@ -33,22 +33,31 @@ class Helpers(unittest.TestCase):
                               capture_output=True, timeout=5, env=dict(self.env, **env))
 
     def brightness(self, direction, cur, maximum):
+        (self.base / 'out').unlink(missing_ok=True)
         result = self.run_helper('brightness-' + direction,
                                  CUR=str(cur), MAX=str(maximum))
         self.assertEqual(result.returncode, 0, result.stderr)
         return int((self.base / 'out').read_text())
 
     def test_brightness_curve(self):
-        for cur, down, up in [(0, 1, 1), (1, 1, 1000), (500, 1, 1000),
-                              (1000, 1, 2000), (3000, 2000, 4000),
+        # 1000 and 4000 are no longer rungs; arbitrary values snap to a
+        # strictly lower/higher rung, with endpoint clamping.
+        for cur, down, up in [(0, 1, 1), (1, 1, 2000), (500, 1, 2000),
+                              (1000, 1, 2000), (1999, 1, 2000),
+                              (2000, 1, 8000), (2001, 2000, 8000),
+                              (3000, 2000, 8000), (4000, 2000, 8000),
+                              (7999, 2000, 8000), (8000, 2000, 16000),
+                              (8001, 8000, 16000),
                               (64000, 32000, 96000), (96000, 64000, 96000)]:
-            self.assertEqual(self.brightness('down', cur, 96000), down)
-            self.assertEqual(self.brightness('up', cur, 96000), up)
+            with self.subTest(cur=cur):
+                self.assertEqual(self.brightness('down', cur, 96000), down)
+                self.assertEqual(self.brightness('up', cur, 96000), up)
 
     def test_brightness_ladder(self):
-        for maximum in (1, 2, 100, 1000, 3000, 64000, 96000):
+        for maximum in (1, 2, 100, 1000, 1999, 2000, 2001, 3000, 4000,
+                        7999, 8000, 8001, 16000, 32000, 64000, 96000):
             levels = sorted({1, maximum} | {
-                level for level in (1000, 2000, 4000, 8000, 16000, 32000, 64000)
+                level for level in (2000, 8000, 16000, 32000, 64000)
                 if level < maximum
             })
             # Every rung is reachable in both directions, including both endpoints.
