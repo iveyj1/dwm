@@ -1,3 +1,4 @@
 *.o
 /dwm
 /dwm-spawn
+/scripts/cloc_by_commit.md

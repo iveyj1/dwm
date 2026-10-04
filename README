@@ -6,7 +6,7 @@ Personal dwm build for X. Configuration lives in `config.def.h`; `config.h` is t
 Change-size history
 -------------------
 
-See `scripts/cloc_by_commit.md` for fork history and per-change runtime/support
+The gitignored local report `scripts/cloc_by_commit.md` records fork history and per-change runtime/support
 cloc counts. After editing, run `python3 scripts/update_cloc_by_commit.py`
 (requires Python 3.9+, git, cloc); it prints latest totals/deltas and includes
 pending changes separately. Use `--check` to detect stale reports and regenerate

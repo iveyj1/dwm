@@ -6,8 +6,8 @@ Keep `config.def.h` and tracked `config.h` synchronized.
 
 ## Change-size history (required)
 
-After each modification, run `python3 scripts/update_cloc_by_commit.py` and include
-`scripts/cloc_by_commit.md` in the change. Run it again after committing or changing
+After each modification, run `python3 scripts/update_cloc_by_commit.py`.
+`scripts/cloc_by_commit.md` is generated locally and gitignored; never stage it. Run it again after committing or changing
 branches so WORKTREE is replaced by the actual commit row. Do not commit on the
 user's behalf merely to update this report.
 
