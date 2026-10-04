@@ -71,7 +71,9 @@ y                        yank selection and exit copy mode
 Y / Ctrl+Shift+X        clean yank and exit (trim trailing spaces/tabs)
 Esc/q/i/Enter/Ctrl+c     leave copy mode
 
-Copy mode is disabled on the alternate screen; resizing exits copy mode.
+Copy mode works on both screens. Alternate-screen motions stay within visible
+rows (no scrollback); gg goes to the top visible row, and counts address visible
+rows. The display remains live. Resizing or switching screens exits copy mode.
 
 Helpers
 -------
