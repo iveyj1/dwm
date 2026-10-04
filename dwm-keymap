@@ -72,12 +72,13 @@ choice=$(printf '%s\n' \
 	'ST   Shift+Mouse wheel     send PageUp / PageDown to application' \
 	'ST   Middle click          paste primary selection' \
 	'ST   Alt+drag              rectangular selection (add Shift in mouse apps)' \
-	'ST   Alt+Escape            enter / leave Vim-style copy mode' \
+	'ST   Alt+Escape            enter / leave Vim-style copy mode (both screens)' \
+	'ST   Copy mode: alternate screen is visible rows only, live display' \
 	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
 	'ST   Copy mode: w/e/b next word/end/previous word' \
 	'ST   Copy mode: W/E/B same, whitespace-delimited WORDs' \
 	'ST   Copy mode: ^/% first/last printable character' \
-	'ST   Copy mode: gg/G oldest history/live cursor' \
+	'ST   Copy mode: gg/G oldest history (alternate: top row)/live cursor' \
 	'ST   Copy mode: count repeats motion; count+gg/G go to row' \
 	'ST   Copy mode: Ctrl+u/d half page up/down' \
 	'ST   Copy mode: PgUp/PgDn; v/V regular/line; Ctrl+v rectangle' \
