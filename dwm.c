@@ -168,6 +168,7 @@ static void buttonpress(XEvent *e);
 static void checkotherwm(void);
 static void cleanup(void);
 static void cleanupmon(Monitor *mon);
+static void clearvisibleurg(Monitor *m);
 static void clientmessage(XEvent *e);
 static void configure(Client *c);
 static void configurenotify(XEvent *e);
@@ -1925,16 +1926,27 @@ setup(void)
 }
 
 void
+clearvisibleurg(Monitor *m)
+{
+	Client *c;
+
+	for (c = m->clients; c; c = c->next)
+		if (ISVISIBLE(c) && c->isurgent)
+			seturgent(c, 0);
+}
+
+void
 seturgent(Client *c, int urg)
 {
 	XWMHints *wmh;
 
 	c->isurgent = urg;
-	if (!(wmh = XGetWMHints(dpy, c->win)))
-		return;
-	wmh->flags = urg ? (wmh->flags | XUrgencyHint) : (wmh->flags & ~XUrgencyHint);
-	XSetWMHints(dpy, c->win, wmh);
-	XFree(wmh);
+	if ((wmh = XGetWMHints(dpy, c->win))) {
+		wmh->flags = urg ? (wmh->flags | XUrgencyHint) : (wmh->flags & ~XUrgencyHint);
+		XSetWMHints(dpy, c->win, wmh);
+		XFree(wmh);
+	}
+	drawbars();
 }
 
 void
@@ -2421,6 +2433,7 @@ view(const Arg *arg)
 	}
 	loadpertag(selmon);
 	focus(NULL);
+	clearvisibleurg(selmon);
 	arrange(selmon);
 }
 
