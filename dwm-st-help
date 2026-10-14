@@ -55,6 +55,7 @@ Ctrl+Shift+Home          reset font size
 Copy mode
 ---------
 Alt+Escape               enter / leave Vim-style copy mode
+n                        toggle relative row numbers (copy mode only)
 h j k l / arrows         move
 w / e / b                next word / word end / previous word
 W / E / B                same, whitespace-delimited WORDs
@@ -70,6 +71,10 @@ Ctrl+v                   visual rectangular block
 y                        yank selection and exit copy mode
 Y / Ctrl+Shift+X        clean yank and exit (trim trailing spaces/tabs)
 Esc/q/i/Enter/Ctrl+c     leave copy mode
+
+Relative numbers overlay the left edge, except on the copy cursor row.
+They default to on; n remembers the setting for this terminal session.
+They never enter copied text and disappear when leaving copy mode.
 
 Copy mode works on both screens. Alternate-screen motions stay within visible
 rows (no scrollback); gg goes to the top visible row, and counts address visible
