@@ -1396,6 +1396,8 @@ nametag(const Arg *arg)
 {
 	int fd[2];
 	pid_t pid;
+	unsigned int i, mask;
+	const char *initial = "";
 
 	if (tagnamefd >= 0)
 		return;
@@ -1410,6 +1412,13 @@ nametag(const Arg *arg)
 		close(fd[1]);
 		return;
 	}
+	mask = selmon->tagset[selmon->seltags];
+	for (i = 0; i < LENGTH(tags); i++) {
+		if (mask & (1U << i)) {
+			initial = tags[i];
+			break;
+		}
+	}
 	pid = fork();
 	if (pid == 0) {
 		close(fd[0]);
@@ -1419,10 +1428,11 @@ nametag(const Arg *arg)
 		if (fd[1] != STDOUT_FILENO)
 			close(fd[1]);
 		setsid();
+		setenv("DWM_TAGNAME", initial, 1);
 		execl("/bin/sh", "sh", "-c",
 		      "if command -v dmenu-font >/dev/null 2>&1; then "
-		      "exec dmenu-font -p 'Rename tag (Esc cancels)'; else "
-		      "exec dmenu -p 'Rename tag (Esc cancels)'; fi < /dev/null",
+		      "exec dmenu-font -it \"$DWM_TAGNAME\" -p 'Rename tag (Esc cancels)'; else "
+		      "exec dmenu -it \"$DWM_TAGNAME\" -p 'Rename tag (Esc cancels)'; fi < /dev/null",
 		      (char *)NULL);
 		_exit(127);
 	}
@@ -1433,7 +1443,7 @@ nametag(const Arg *arg)
 		return;
 	}
 	tagnamefd = fd[0];
-	tagnamemask = selmon->tagset[selmon->seltags];
+	tagnamemask = mask;
 	tagnamelen = 0;
 	tagnamedone = 0;
 }
