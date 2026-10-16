@@ -23,6 +23,23 @@ Run from `.xinitrc`:
 
     exec dwm
 
+Optional X11 integration tests
+------------------------------
+
+    make check-x11
+
+Requires sibling st-reflow, dmenu and dwmblocks checkouts, Python 3, Xvfb,
+libX11, libXtst, xclip, a monospace font and Linux /proc. The target builds
+all four projects, then allocates a private Xvfb display using -displayfd.
+It never uses the active DISPLAY or installs binaries. Hardware commands and
+pkill are replaced with test-local fixtures; no real volume/status commands run.
+
+The suite sends real keyboard/mouse events and checks clipboard contents,
+copy-mode counts and streaming, paste isolation, alternate screen, tag renaming,
+rapid splash/main-window swallowing, PID-based spawn placement, full-history
+reflow RSS under tiling, and signal-driven status updates. It remains separate
+from make check so the headless suite needs neither Xvfb nor sibling projects.
+
 Mint / Void sessions
 --------------------
 

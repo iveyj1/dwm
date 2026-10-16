@@ -80,4 +80,11 @@ check:
 	python3 tests/swallow.py
 	python3 tests/spawn.py
 
-.PHONY: all clean dist install uninstall check
+# Optional live-X suite: isolated Xvfb, sibling builds, no installation.
+check-x11: all
+	$(MAKE) -C ../st-reflow all
+	$(MAKE) -C ../dmenu all
+	$(MAKE) -C ../dwmblocks all
+	python3 tests/x11.py
+
+.PHONY: all clean dist install uninstall check check-x11
