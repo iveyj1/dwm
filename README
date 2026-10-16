@@ -1,7 +1,7 @@
 dwm - dynamic window manager
 ============================
 
-Personal dwm build for X. Configuration lives in `config.def.h`; `config.h` is the generated/local build copy.
+Personal dwm build for X. Edit `config.def.h` only; `config.h` is an ignored build output regenerated automatically when the template changes.
 
 Change-size history
 -------------------
@@ -16,7 +16,6 @@ Build and install
 -----------------
 
     make clean
-    rm -f config.h
     make
     sudo make install
 
