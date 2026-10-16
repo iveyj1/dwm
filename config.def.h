@@ -80,10 +80,10 @@ static const char *floatcmd[] = { "sh", "-c" ,"cd $HOME;exec st", NULL };
  * Set centered to 1 to ignore x/y and center on the selected monitor. */
 static const FloatingWindow floatwin = { floatcmd, -1000, 20, 800, 500, 1 };
 static const char *browsercmd[]  = { "sh", "-c", "command -v brave-browser >/dev/null 2>&1 && exec brave-browser || command -v brave >/dev/null 2>&1 && exec brave || exec flatpak run com.brave.Browser", NULL };
-static const char *volupcmd[]    = { "wpctl", "set-volume", "-l", "1.0", "@DEFAULT_AUDIO_SINK@", "5%+", NULL };
-static const char *voldowncmd[]  = { "wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "5%-", NULL };
-static const char *volmutecmd[]  = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
-static const char *micmutecmd[]  = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle", NULL };
+#define VOLUP "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+; pkill -RTMIN+10 dwmblocks"
+#define VOLDOWN "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; pkill -RTMIN+10 dwmblocks"
+#define VOLMUTE "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; pkill -RTMIN+10 dwmblocks"
+#define MICMUTE "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; pkill -RTMIN+10 dwmblocks"
 static const char *playpausecmd[] = { "playerctl", "play-pause", NULL };
 static const char *nextcmd[]      = { "playerctl", "next", NULL };
 static const char *prevcmd[]      = { "playerctl", "previous", NULL };
@@ -95,15 +95,15 @@ static const char *screenshotfullcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot-
 static const char *sleepcmd[] = { "dwm-suspend", NULL };
 
 static const Key keys[] = {
-	{ MODKEY,                       XK_F1,                  spawn, {.v = volmutecmd } },
-	{ MODKEY,                       XK_F2,                  spawn, {.v = voldowncmd } },
-	{ MODKEY,                       XK_F3,                  spawn, {.v = volupcmd } },
-	{ MODKEY,                       XK_F4,                  spawn, {.v = micmutecmd } },
+	{ MODKEY,                       XK_F1,                  spawn, SHCMD(VOLMUTE) },
+	{ MODKEY,                       XK_F2,                  spawn, SHCMD(VOLDOWN) },
+	{ MODKEY,                       XK_F3,                  spawn, SHCMD(VOLUP) },
+	{ MODKEY,                       XK_F4,                  spawn, SHCMD(MICMUTE) },
 	/* modifier    r                key        function        argument */
-	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = volupcmd } },
-	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = voldowncmd } },
-	{ 0,                            XF86XK_AudioMute,        spawn, {.v = volmutecmd } },
-	{ 0,                            XF86XK_AudioMicMute,     spawn, {.v = micmutecmd } },
+	{ 0,                            XF86XK_AudioRaiseVolume, spawn, SHCMD(VOLUP) },
+	{ 0,                            XF86XK_AudioLowerVolume, spawn, SHCMD(VOLDOWN) },
+	{ 0,                            XF86XK_AudioMute,        spawn, SHCMD(VOLMUTE) },
+	{ 0,                            XF86XK_AudioMicMute,     spawn, SHCMD(MICMUTE) },
 	{ 0,                            XF86XK_AudioPlay,        spawn, {.v = playpausecmd } },
 	{ 0,                            XF86XK_AudioPause,       spawn, {.v = playpausecmd } },
 	{ 0,                            XF86XK_AudioNext,        spawn, {.v = nextcmd } },
