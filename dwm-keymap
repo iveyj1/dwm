@@ -76,16 +76,16 @@ choice=$(printf '%s\n' \
 	'ST   Copy mode: alternate screen is visible rows only, live display' \
 	'ST   Copy mode: paste ignored; mouse 1 moves/extends; drag selects' \
 	'ST   Copy mode: n toggles relative row numbers (cursor row unobscured)' \
-	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
+	'ST   Copy mode: h/j/k/l or Left/Down/Up/Right move; 0/Home/$/End' \
 	'ST   Copy mode: w/e/b next word/end/previous word' \
 	'ST   Copy mode: W/E/B same, whitespace-delimited WORDs' \
 	'ST   Copy mode: ^/% first/last printable character' \
 	'ST   Copy mode: gg/G oldest history (alternate: top row)/live cursor' \
 	'ST   Copy mode: count repeats motion; count+gg/G go to row' \
-	'ST   Copy mode: Ctrl+u/d half page up/down' \
-	'ST   Copy mode: PgUp/PgDn; v/V regular/line; Ctrl+v rectangle' \
+	'ST   Copy mode: Ctrl+u/Ctrl+d half page up/down' \
+	'ST   Copy mode: PageUp/PageDown; v/V regular/line; Ctrl+v rectangle' \
 	'ST   Copy mode: y yank; Y/Ctrl+Shift+X clean yank; both exit' \
-	'ST   Copy mode: Esc/q/i/Enter/Ctrl+c leave' \
+	'ST   Copy mode: Escape/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose/open URL from history; alt screen visible rows' \
 	'ST   Alt+Y                 choose/copy URL from history; alt screen visible rows' \
 	'ST   Alt+O                 choose/copy history line; alt screen visible rows' \
