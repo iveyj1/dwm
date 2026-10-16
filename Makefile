@@ -78,5 +78,6 @@ check:
 	python3 tests/keymap.py
 	python3 tests/rename.py
 	python3 tests/swallow.py
+	python3 tests/spawn.py
 
 .PHONY: all clean dist install uninstall check

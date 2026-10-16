@@ -15,6 +15,7 @@ class Rename(unittest.TestCase):
         end = source.index('\nClient *\nnexttiled', start)
         code = r'''
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -70,10 +71,13 @@ int main(void) {
     readtagname(); close(w); readtagname();
     assert(draws == 2 && strlen(tags[0]) == MAX_TAGLEN - 1);
     assert(!strcmp(tags[0], tags[2]) && !strcmp(tags[1], "work"));
-    /* Enter on an empty prompt retains the previous empty-name behavior. */
+    /* Empty and whitespace-only names restore each tag's own number. */
     w = begin(1); assert(write(w, "\n", 1) == 1);
     readtagname(); close(w); readtagname();
-    assert(draws == 3 && !strcmp(tags[0], ""));
+    assert(draws == 3 && !strcmp(tags[0], "1"));
+    w = begin(6); assert(write(w, " \t\n", 3) == 3);
+    readtagname(); close(w); readtagname();
+    assert(draws == 4 && !strcmp(tags[1], "2") && !strcmp(tags[2], "3"));
     return 0;
 }
 '''

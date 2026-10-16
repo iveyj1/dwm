@@ -21,6 +21,8 @@
  * To understand everything else, start reading main().
  */
 #include <errno.h>
+#include <ctype.h>
+#include <time.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <locale.h>
@@ -119,6 +121,13 @@ typedef struct {
 	int x, y, w, h;
 	int centered;
 } FloatingWindow;
+
+typedef struct {
+	pid_t pid;
+	unsigned int tags;
+	const FloatingWindow *floating;
+	time_t created;
+} PendingSpawn;
 
 typedef struct {
 	const char *symbol;
@@ -230,6 +239,9 @@ static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
 static void spawn(const Arg *arg);
+static pid_t spawnpid(const Arg *arg);
+static void recordspawn(pid_t pid, unsigned int tags, const FloatingWindow *fw);
+static int matchspawn(pid_t pid, PendingSpawn *result);
 static void spawnfloating(const Arg *arg);
 static void swallow(Client *p, Client *c);
 static Client *swallowingclient(Window w);
@@ -299,8 +311,7 @@ static xcb_connection_t *xcon;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
-static const FloatingWindow *pendingfloatingwindow;
-static unsigned int pendingspawntags;
+static PendingSpawn pendingspawns[16];
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -1133,9 +1144,8 @@ handlespawnrequest(void)
 		argv[i] = p;
 		p += strlen((char *)p) + 1;
 	}
-	pendingspawntags = 1U << (tag - 1);
 	arg.v = argv;
-	spawn(&arg);
+	recordspawn(spawnpid(&arg), 1U << (tag - 1), NULL);
 	free(argv);
 
 done:
@@ -1215,6 +1225,7 @@ manage(Window w, XWindowAttributes *wa)
 {
 	Client *c, *t = NULL, *term = NULL;
 	const FloatingWindow *fw;
+	PendingSpawn pending;
 	Window trans = None;
 	XWindowChanges wc;
 
@@ -1235,12 +1246,10 @@ manage(Window w, XWindowAttributes *wa)
 	} else {
 		c->mon = selmon;
 		applyrules(c);
-		if (pendingspawntags) {
-			c->tags = pendingspawntags;
-			pendingspawntags = 0;
-		}
-		if ((fw = pendingfloatingwindow)) {
-			pendingfloatingwindow = NULL;
+		memset(&pending, 0, sizeof pending);
+		if (matchspawn(c->pid, &pending) && pending.tags)
+			c->tags = pending.tags;
+		if ((fw = pending.floating)) {
 			c->isfloating = 1;
 			c->w = c->oldw = MAX(1, fw->w);
 			c->h = c->oldh = MAX(1, fw->h);
@@ -1495,9 +1504,16 @@ readtagname(void)
 	if (n != 0 || !tagnamedone)
 		return;
 	tagnamebuf[tagnamelen] = '\0';
-	for (i = 0; i < LENGTH(tags); i++)
-		if (tagnamemask & (1U << i))
+	for (j = 0; tagnamebuf[j] && isspace((unsigned char)tagnamebuf[j]); j++)
+		;
+	for (i = 0; i < LENGTH(tags); i++) {
+		if (!(tagnamemask & (1U << i)))
+			continue;
+		if (!tagnamebuf[j])
+			snprintf(tags[i], sizeof tags[i], "%u", i + 1);
+		else
 			strcpy(tags[i], tagnamebuf);
+	}
 	drawbars();
 }
 
@@ -1997,14 +2013,65 @@ showhide(Client *c)
 	}
 }
 
-void
-spawn(const Arg *arg)
+static time_t
+spawnnow(void)
+{
+	struct timespec ts;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
+		return 0;
+	return ts.tv_sec;
+}
+
+static void
+recordspawn(pid_t pid, unsigned int tags, const FloatingWindow *fw)
+{
+	size_t i, slot = 0;
+	time_t now = spawnnow();
+
+	if (pid <= 0 || !now)
+		return;
+	for (i = 0; i < LENGTH(pendingspawns); i++) {
+		if (!pendingspawns[i].pid || now - pendingspawns[i].created >= 30) {
+			slot = i;
+			break;
+		}
+		if (pendingspawns[i].created < pendingspawns[slot].created)
+			slot = i;
+	}
+	pendingspawns[slot] = (PendingSpawn){pid, tags, fw, now};
+}
+
+static int
+matchspawn(pid_t pid, PendingSpawn *result)
+{
+	size_t i;
+	time_t now = spawnnow();
+
+	for (i = 0; i < LENGTH(pendingspawns); i++) {
+		PendingSpawn *p = &pendingspawns[i];
+		if (!now || now - p->created >= 30)
+			p->pid = 0;
+		if (pid > 0 && p->pid > 0 &&
+		    (p->pid == pid || isdescprocess(p->pid, pid))) {
+			*result = *p;
+			p->pid = 0;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static pid_t
+spawnpid(const Arg *arg)
 {
 	struct sigaction sa;
+	pid_t pid;
 
 	if (arg->v == dmenucmd)
 		dmenumon[0] = '0' + selmon->num;
-	if (fork() == 0) {
+	pid = fork();
+	if (pid == 0) {
 		if (dpy)
 			close(ConnectionNumber(dpy));
 		setsid();
@@ -2017,6 +2084,13 @@ spawn(const Arg *arg)
 		execvp(((char **)arg->v)[0], (char **)arg->v);
 		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
 	}
+	return pid;
+}
+
+void
+spawn(const Arg *arg)
+{
+	(void)spawnpid(arg);
 }
 
 void
@@ -2025,8 +2099,7 @@ spawnfloating(const Arg *arg)
 	const FloatingWindow *fw = arg->v;
 	Arg spawnarg = { .v = fw->cmd };
 
-	pendingfloatingwindow = fw;
-	spawn(&spawnarg);
+	recordspawn(spawnpid(&spawnarg), 0, fw);
 }
 
 void

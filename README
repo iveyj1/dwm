@@ -58,7 +58,7 @@ Local changes
 - Pertag layout state.
 - Window swallowing support plus `dwm-spawn` helper.
 - Ghostty terminal launcher and centered floating `st` launcher.
-- Brave browser and pcmanfm launchers.
+- Brave browser and dwm-fmgr (Super+Shift+E) launchers.
 - Audio, media, brightness, screenshot, and suspend key bindings.
 - Brightness keys select adjacent absolute levels: 1, 2000, 8000, 16000,
   32000, 64000, and the device maximum (96000 on this machine).
