@@ -74,6 +74,7 @@ choice=$(printf '%s\n' \
 	'ST   Alt+drag              rectangular selection (add Shift in mouse apps)' \
 	'ST   Alt+Escape            enter / leave Vim-style copy mode (both screens)' \
 	'ST   Copy mode: alternate screen is visible rows only, live display' \
+	'ST   Copy mode: paste ignored; mouse 1 moves/extends; drag selects' \
 	'ST   Copy mode: n toggles relative row numbers (cursor row unobscured)' \
 	'ST   Copy mode: hjkl/arrows move; 0/$ row start/end' \
 	'ST   Copy mode: w/e/b next word/end/previous word' \
