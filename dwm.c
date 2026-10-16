@@ -101,6 +101,7 @@ struct Client {
 	pid_t pid;
 	Client *next;
 	Client *snext;
+	unsigned int ignoreunmap; /* pending WM-initiated hides for this window */
 	Client *swallowing;
 	Monitor *mon;
 	Window win;
@@ -475,15 +476,24 @@ swallow(Client *p, Client *c)
 
 	detach(c);
 	detachstack(c);
-	setclientstate(c, WithdrawnState);
+	setfullscreen(p, 0);
+	setclientstate(p, WithdrawnState);
 	XUnmapWindow(dpy, p->win);
 
+	/* The hidden window is moved into c below. Its notification may arrive
+	 * after a short-lived child has already closed and restored it. */
+	c->ignoreunmap = p->ignoreunmap + 1;
+	p->ignoreunmap = 0;
 	p->swallowing = c;
 	c->mon = p->mon;
 	w = p->win;
 	p->win = c->win;
 	c->win = w;
+	setclientstate(p, NormalState);
 	updatetitle(p);
+	updatesizehints(p);
+	updatewmhints(p);
+	updatewindowtype(p);
 	XMoveResizeWindow(dpy, p->win, p->x, p->y, p->w, p->h);
 	arrange(p->mon);
 	configure(p);
@@ -493,12 +503,17 @@ swallow(Client *p, Client *c)
 void
 unswallow(Client *c)
 {
+	/* Restore fullscreen geometry before replacing the GUI window ID. */
+	setfullscreen(c, 0);
 	c->win = c->swallowing->win;
+	c->ignoreunmap = c->swallowing->ignoreunmap;
 	free(c->swallowing);
 	c->swallowing = NULL;
 
-	setfullscreen(c, 0);
 	updatetitle(c);
+	updatesizehints(c);
+	updatewmhints(c);
+	updatewindowtype(c);
 	XMapWindow(dpy, c->win);
 	XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
 	setclientstate(c, NormalState);
@@ -1295,6 +1310,9 @@ maprequest(XEvent *e)
 
 	if (!XGetWindowAttributes(dpy, ev->window, &wa) || wa.override_redirect)
 		return;
+	/* A swallowed terminal remains hidden until its GUI exits. */
+	if (swallowingclient(ev->window))
+		return;
 	if (!wintoclient(ev->window))
 		manage(ev->window, &wa);
 }
@@ -1738,6 +1756,8 @@ sendmon(Client *c, Monitor *m)
 	detach(c);
 	detachstack(c);
 	c->mon = m;
+	if (c->swallowing)
+		c->swallowing->mon = m;
 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
 	attach(c);
 	attachstack(c);
@@ -2144,8 +2164,11 @@ unmanage(Client *c, int destroyed)
 	if ((s = swallowingclient(c->win))) {
 		free(s->swallowing);
 		s->swallowing = NULL;
+		/* The terminal is gone: the remaining GUI is not a terminal. */
+		s->isterminal = 0;
+		s->pid = winpid(s->win);
 		focus(NULL);
-		arrange(m);
+		arrange(s->mon);
 		return;
 	}
 
@@ -2175,12 +2198,25 @@ unmapnotify(XEvent *e)
 	Client *c;
 	XUnmapEvent *ev = &e->xunmap;
 
-	if ((c = wintoclient(ev->window))) {
-		if (ev->send_event)
-			setclientstate(c, WithdrawnState);
-		else
-			unmanage(c, 0);
+	/* StructureNotify and root SubstructureNotify both report real unmaps.
+	 * Consume only the window copy, but keep synthetic withdrawal requests. */
+	if (!ev->send_event && ev->event != ev->window)
+		return;
+	c = wintoclient(ev->window);
+	if (!c) {
+		Client *parent = swallowingclient(ev->window);
+		if (parent && !ev->send_event && parent->swallowing->ignoreunmap)
+			parent->swallowing->ignoreunmap--;
+		return;
 	}
+	if (!ev->send_event && c->ignoreunmap) {
+		c->ignoreunmap--;
+		return;
+	}
+	if (ev->send_event)
+		setclientstate(c, WithdrawnState);
+	else
+		unmanage(c, 0);
 }
 
 void
@@ -2283,6 +2319,8 @@ updategeom(void)
 				m->clients = c->next;
 				detachstack(c);
 				c->mon = mons;
+				if (c->swallowing)
+					c->swallowing->mon = mons;
 				attach(c);
 				attachstack(c);
 			}
