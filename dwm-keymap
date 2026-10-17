@@ -75,7 +75,7 @@ choice=$(printf '%s\n' \
 	'ST   Alt+Escape            enter / leave Vim-style copy mode (both screens)' \
 	'ST   Copy mode: alternate screen is visible rows only, live display' \
 	'ST   Copy mode: paste ignored; mouse 1 moves/extends; drag selects' \
-	'ST   Copy mode: n toggles relative row numbers (cursor row unobscured)' \
+	'ST   Copy mode: Ctrl+n toggles relative row numbers (cursor row unobscured)' \
 	'ST   Copy mode: h/j/k/l or Left/Down/Up/Right move; 0/Home/$/End' \
 	'ST   Copy mode: w/e/b next word/end/previous word' \
 	'ST   Copy mode: W/E/B same, whitespace-delimited WORDs' \
@@ -84,7 +84,14 @@ choice=$(printf '%s\n' \
 	'ST   Copy mode: count repeats motion; count+gg/G go to row' \
 	'ST   Copy mode: Ctrl+u/Ctrl+d half page up/down' \
 	'ST   Copy mode: PageUp/PageDown; v/V regular/line; Ctrl+v rectangle' \
-	'ST   Copy mode: y yank; Y/Ctrl+Shift+X clean yank; both exit' \
+	'ST   Copy mode: f/t/F/T + char find/till within logical line; ;/, repeat/reverse' \
+	'ST   Copy mode: / and ? literal global search; n/N repeat/reverse (counts)' \
+	'ST   Copy mode: search Enter accepts, Escape cancels; Backspace/Ctrl+u edit' \
+	'ST   Copy mode: y + motion (3yw, y3W, yf:, yt,); yy copies counted whole lines' \
+	'ST   Copy mode: no selection: Y/Ctrl+Shift+C copy through counted logical-line end' \
+	'ST   Copy mode: no selection: Ctrl+y/Ctrl+Shift+X same with trailing whitespace trimmed' \
+	'ST   Copy mode: selection: y/Ctrl+Shift+C plain; Y/Ctrl+y/Ctrl+Shift+X trimmed copy' \
+	'ST   Copy mode: all copies exit; Escape first cancels a pending command' \
 	'ST   Copy mode: Escape/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose/open URL from history; alt screen visible rows' \
 	'ST   Alt+Y                 choose/copy URL from history; alt screen visible rows' \

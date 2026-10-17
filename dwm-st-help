@@ -14,8 +14,8 @@ CLIPBOARD workflow:
      `V` line-wise, Ctrl+V rectangular). In mouse-aware apps, use Shift+Alt+drag.
   2. Ctrl+Shift+C copies and preserves trailing spaces/tabs.
      Ctrl+Shift+X copies and trims trailing spaces/tabs from every selected line.
-     In copy mode, `y` copies normally and `Y` performs the trimmed copy directly.
-     Explicit copies clear the highlight; successful y/Y/Ctrl+Shift+X also exit
+     With a copy-mode selection, `y` copies normally and `Y` trims it.
+     Explicit copies clear the highlight; all successful copy-mode yanks exit
      copy mode. PRIMARY and CLIPBOARD remain available; scrollback stays put.
   3. Ctrl+Shift+V pastes CLIPBOARD.
 
@@ -55,7 +55,7 @@ Ctrl+Shift+Home          reset font size
 Copy mode
 ---------
 Alt+Escape               enter / leave Vim-style copy mode
-n                        toggle relative row numbers (copy mode only)
+Ctrl+n                   toggle relative row numbers (copy mode only)
 h j k l / arrows         move
 w / e / b                next word / word end / previous word
 W / E / B                same, whitespace-delimited WORDs
@@ -68,12 +68,28 @@ Ctrl+u / Ctrl+d          half page up / down
 PageUp / PageDown        page up / down
 v / V                    visual / visual line
 Ctrl+v                   visual rectangular block
-y                        yank selection and exit copy mode
-Y / Ctrl+Shift+X        clean yank and exit (trim trailing spaces/tabs)
-Esc/q/i/Enter/Ctrl+c     leave copy mode
+f/t/F/T + character      find/till forward/backward within logical line
+; / ,                    repeat character-find / reverse (counts supported)
+/ / ? + text + Enter     literal, case-sensitive global search forward/backward
+n / N                    repeat search / reverse (counts supported)
+y + motion               yank motion range (3yw, y3W, yf:, yt,); counts multiply
+yy / 3yy / y3y           yank whole logical lines, including final newline
+Y / Ctrl+Shift+C         no selection: yank through counted logical-line end
+Ctrl+y / Ctrl+Shift+X    no selection: same, trimming trailing spaces/tabs per line
+y / Ctrl+Shift+C         selection: plain yank; selection counts ignored
+Y / Ctrl+y / Ctrl+Shift+X selection: trimmed yank
+Esc/q/i/Enter/Ctrl+c     leave copy mode; Escape first cancels a pending command
+
+Every successful yank exits. Y without a selection does not add a final newline.
+Logical lines join soft wraps; trimming preserves indentation and internal spaces.
+Search covers retained history (visible rows only on the alternate screen), wraps
+once, and can match across soft wraps but not hard newlines. Search moves only on
+Enter, extends visual selections, and shows wrap/not-found notices. Backspace edits
+the prompt, Ctrl+u clears it, Escape/Ctrl+c cancel, empty Enter repeats the pattern.
+Reversing with N or comma does not redefine the original search/find direction.
 
 Relative numbers overlay the left edge, except on the copy cursor row.
-They default to on; n remembers the setting for this terminal session.
+They default to on; Ctrl+n remembers the setting for this terminal session.
 They never enter copied text and disappear when leaving copy mode.
 
 In copy mode, paste is ignored, including middle click. Mouse 1 moves the cursor
