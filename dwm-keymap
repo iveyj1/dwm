@@ -95,7 +95,8 @@ choice=$(printf '%s\n' \
 	'ST   Copy mode: Escape/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose/open URL from history; alt screen visible rows' \
 	'ST   Alt+Y                 choose/copy URL from history; alt screen visible rows' \
-	'ST   Alt+O                 choose/copy history line; alt screen visible rows' \
+	'ST   Alt+O                 choose/copy one command output; prompt-based detection' \
+	'ST   Alt+P                 choose/copy detected path; no expansion or opening' \
 	'ST   Alt+F4                close; confirm if a process is running' \
 	'ST   Break                 send break' \
 	'ST   Ctrl+Print            toggle printer mode' \

@@ -405,6 +405,46 @@ def integration():
                 command('write', '\033[?1049l')
             check('alternate-screen copy mode selects live rows, not normal-screen history', test_alternate)
 
+            def test_copyout():
+                command('write', '\033[2J\033[3J\033[H$ run\r\nolder output\r\n$ run\r\nnewer output\r\n$ ')
+                for older, expected in ((False, 'newer output\n'), (True, 'older output\n')):
+                    x.chord('o', 'Alt_L')
+                    wait(menu_visible, 'command-output menu')
+                    if older:
+                        x.chord('Down')
+                    x.chord('Return')
+                    wait(lambda: not menu_visible(), 'command-output menu exit')
+                    wait(lambda: clipboard() == expected, 'individual command output copied')
+                before = clipboard()
+                x.chord('o', 'Alt_L')
+                wait(menu_visible, 'command-output cancellation menu')
+                x.chord('Escape')
+                wait(lambda: not menu_visible(), 'cancelled command-output menu exit')
+                time.sleep(.15)
+                assert clipboard() == before, 'cancellation changed clipboard'
+            check('Alt+o copies individual duplicate-command output and preserves clipboard on cancel', test_copyout)
+
+            def test_pathcopy():
+                longpath = '/tmp/' + 'a'*180 + '/file'
+                command('write', '\033[2J\033[3J\033[H~/.bashrc\r\n"/tmp/my file"\r\n' + longpath + '\r\n')
+                x.chord('p', 'Alt_L')
+                wait(menu_visible, 'path-copy menu')
+                x.chord('Return')
+                wait(lambda: not menu_visible(), 'path-copy menu exit')
+                wait(lambda: clipboard() == longpath, 'soft-wrapped path copied literally')
+                x.chord('p', 'Alt_L')
+                wait(menu_visible, 'quoted-path menu')
+                x.text('my'); x.chord('space'); x.text('file'); x.chord('Return')
+                wait(lambda: not menu_visible(), 'quoted-path menu exit')
+                wait(lambda: clipboard() == '/tmp/my file', 'quoted path copied without quotes')
+                x.chord('p', 'Alt_L')
+                wait(menu_visible, 'path-copy cancellation menu')
+                x.chord('Escape')
+                wait(lambda: not menu_visible(), 'path-copy cancelled')
+                time.sleep(.15)
+                assert clipboard() == '/tmp/my file'
+            check('Alt+p copies soft-wrapped/quoted paths and preserves clipboard on cancel', test_pathcopy)
+
             def test_swallow():
                 for i in range(6):
                     registry = tmp / f'gui-{i}'

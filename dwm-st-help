@@ -105,7 +105,23 @@ Helpers
 -------
 Alt+L                    choose and open URL from history
 Alt+Y                    choose and copy URL from history
-Alt+O                    choose and copy one nonempty history line
+Alt+O                    choose one completed command occurrence and copy its output
+Alt+P                    choose a detected pathname and copy its literal spelling
+
+Commands are listed newest-first with IDs; repeated commands are separate choices.
+Only output is copied, not the command/prompt. Blank lines and whitespace are
+preserved. Cancellation, invalid choices and empty output leave CLIPBOARD alone.
+Detection guesses a fixed prompt token from the last nonempty history line.
+Use at a visible shell prompt; changing/multiline prompts or prompt-like output
+can confuse it. Use copy mode when boundaries are ambiguous. On the alternate
+screen only visible rows are available.
+
+The path picker recognizes /absolute, ~/home-relative, ./explicit, ../parent and
+mydir/myfile paths. Quoted paths may contain spaces. Candidates are deduplicated,
+newest-first; URLs, bare filenames and simple dates/fractions are ignored.
+Detection is heuristic: punctuation and unquoted spaces can make it ambiguous.
+No path is opened, executed, expanded or checked for existence. Relative paths
+are not resolved against any directory. Cancellation leaves CLIPBOARD unchanged.
 Alt+F4                   close terminal; confirm if a process is running
 
 Other shortcuts
