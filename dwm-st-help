@@ -56,6 +56,7 @@ Copy mode
 ---------
 Alt+Escape               enter / leave Vim-style copy mode
 Ctrl+n                   toggle relative row numbers (copy mode only)
+Space s char label       flash jump to visible character; extend selection
 h j k l / arrows         move
 w / e / b                next word / word end / previous word
 W / E / B                same, whitespace-delimited WORDs
@@ -87,6 +88,18 @@ once, and can match across soft wraps but not hard newlines. Search moves only o
 Enter, extends visual selections, and shows wrap/not-found notices. Backspace edits
 the prompt, Ctrl+u clears it, Escape/Ctrl+c cancel, empty Enter repeats the pattern.
 Reversing with N or comma does not redefine the original search/find direction.
+
+Flash is case-sensitive and searches only visible rows. Type a one/two-letter
+label to jump; a single target jumps immediately. The first forward match
+(or nearest preceding one) uses the searched character as its label.
+Escape cancels flash, staying in copy mode. New output, mouse positioning,
+scrolling, resize, or screen changes cancel it. Numbers hide while flash is active.
+Labels do not enter copied text. Counts/pending yank operators are cleared;
+use v, flash to the endpoint, then y to copy a range.
+
+Yanks without an existing highlighted selection flash the copied source range
+in inverse video for 200ms, without blocking input. Output or view changes cancel
+the flash. Trimmed copies highlight the original range; clipboard text is unchanged.
 
 Relative numbers overlay the left edge, except on the copy cursor row.
 They default to on; Ctrl+n remembers the setting for this terminal session.

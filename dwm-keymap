@@ -76,6 +76,8 @@ choice=$(printf '%s\n' \
 	'ST   Copy mode: alternate screen is visible rows only, live display' \
 	'ST   Copy mode: paste ignored; mouse 1 moves/extends; drag selects' \
 	'ST   Copy mode: Ctrl+n toggles relative row numbers (cursor row unobscured)' \
+	'ST   Copy mode: Space s char label flash-jumps within viewport; extends selection' \
+	'ST   Copy mode: flash Escape cancels; terminal output cancels stale targets' \
 	'ST   Copy mode: h/j/k/l or Left/Down/Up/Right move; 0/Home/$/End' \
 	'ST   Copy mode: w/e/b next word/end/previous word' \
 	'ST   Copy mode: W/E/B same, whitespace-delimited WORDs' \
@@ -91,6 +93,7 @@ choice=$(printf '%s\n' \
 	'ST   Copy mode: no selection: Y/Ctrl+Shift+C copy through counted logical-line end' \
 	'ST   Copy mode: no selection: Ctrl+y/Ctrl+Shift+X same with trailing whitespace trimmed' \
 	'ST   Copy mode: selection: y/Ctrl+Shift+C plain; Y/Ctrl+y/Ctrl+Shift+X trimmed copy' \
+	'ST   Copy mode: unselected yanks flash the copied range for 200ms (non-blocking)' \
 	'ST   Copy mode: all copies exit; Escape first cancels a pending command' \
 	'ST   Copy mode: Escape/q/i/Enter/Ctrl+c leave' \
 	'ST   Alt+L                 choose/open URL from history; alt screen visible rows' \
