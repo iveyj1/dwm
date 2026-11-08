@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-cd $HOME && st -e "spf" 
+cd $HOME && st -e "nnn" 
