@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Start/stop a named foreground program, scoped to the current X display."""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+
+def identity(pid):
+    """Linux start time prevents a stale PID file from targeting a reused PID."""
+    try:
+        fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
+        return fields[19] if fields[0] != "Z" else None
+    except FileNotFoundError:
+        return None
+
+
+def main():
+    args = sys.argv[1:]
+    if not (len(args) == 2 and args[0] == "stop" or
+            len(args) >= 4 and args[0] == "start" and args[2] == "--"):
+        sys.exit("usage: dwm-process start NAME -- PROGRAM [ARG...] | stop NAME")
+    action, name = args[:2]
+    if not name:
+        sys.exit("dwm-process: NAME must not be empty")
+    os.umask(0o077)
+    root = Path(os.environ.get("XDG_RUNTIME_DIR", Path.home() / ".cache"))
+    directory = root / "dwm-process"
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    key = hashlib.sha256(json.dumps([os.environ.get("DISPLAY", ""), name]).encode()).hexdigest()
+    state = directory / (key + ".json")
+    with (directory / (key + ".lock")).open("w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            pid, started = json.loads(state.read_text())
+        except (FileNotFoundError, ValueError):
+            pid, started = 0, None
+        running = pid > 0 and started is not None and identity(pid) == started
+        if action == "start":
+            if not running:
+                child = subprocess.Popen(
+                    args[3:],
+                    stdin=subprocess.DEVNULL, start_new_session=True,
+                )
+                state.write_text(json.dumps([child.pid, identity(child.pid)]))
+        else:
+            if running:
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+                # Serialize a subsequent start with graceful shutdown.
+                for _ in range(100):
+                    if identity(pid) != started:
+                        break
+                    time.sleep(0.05)
+                else:
+                    sys.exit(f"dwm-process: {name}: still stopping; try again shortly")
+            state.unlink(missing_ok=True)
+
+
+if __name__ == "__main__":
+    main()

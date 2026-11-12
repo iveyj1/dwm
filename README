@@ -23,6 +23,22 @@ Run from `.xinitrc`:
 
     exec dwm
 
+Named foreground programs
+-------------------------
+
+    dwm-process start NAME -- PROGRAM ARG...
+    dwm-process stop NAME
+
+This Linux/Python 3 helper serializes operations per name and DISPLAY, tracking
+PID and /proc start time. Repeated start and repeated stop are no-ops. Changed
+arguments take effect only after stop/start. Programs must not daemonize.
+Stop sends SIGTERM to that process only, waits up to five seconds, and reports
+a timeout without SIGKILL. State lives under XDG_RUNTIME_DIR (fallback ~/.cache).
+
+The short Bash wrapper dwm-redshift selects Redshift's arguments. Alt+BrightnessDown
+starts it at 42:-84 with 5000K day / 3000K night; Alt+BrightnessUp stops it, allowing
+Redshift to restore gamma. Requires redshift, Bash and Python 3.9+ on PATH.
+
 Optional X11 integration tests
 ------------------------------
 

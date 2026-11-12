@@ -111,6 +111,8 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioStop,        spawn, {.v = stopcmd } },
 	{ 0,                            XF86XK_MonBrightnessUp,  spawn, {.v = brightupcmd } },
 	{ 0,                            XF86XK_MonBrightnessDown,spawn, {.v = brightdowncmd } },
+	{ Mod1Mask,                     XF86XK_MonBrightnessDown,spawn, SHCMD("dwm-redshift start") },
+	{ Mod1Mask,                     XF86XK_MonBrightnessUp,  spawn, SHCMD("dwm-redshift stop") },
     { 0,                            XK_Print,  spawn,          {.v = screenshotcmd } },
     { ShiftMask,                    XK_Print,  spawn,          {.v = screenshotfullcmd } },
 	{ MODKEY|ShiftMask,             XK_p,      spawn,          {.v = dmenucmd } },

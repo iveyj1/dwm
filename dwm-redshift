@@ -1,0 +1,14 @@
+#!/bin/bash
+# Redshift policy; lifecycle management lives in dwm-process.
+case "${1:-}" in
+    start)
+        exec dwm-process start redshift -- redshift -l 42:-84 -t 5000:3000
+        ;;
+    stop)
+        exec dwm-process stop redshift
+        ;;
+    *)
+        echo "usage: dwm-redshift start|stop" >&2
+        exit 2
+        ;;
+esac

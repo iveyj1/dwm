@@ -49,6 +49,8 @@ choice=$(printf '%s\n' \
 	'DWM  Volume keys          volume up/down, speaker/microphone mute' \
 	'DWM  Media keys           play/pause, previous, next, stop' \
 	'DWM  Brightness keys      screen brightness up / down' \
+	'DWM  Alt+BrightnessDown   start Redshift (5000K day / 3000K night)' \
+	'DWM  Alt+BrightnessUp     stop Redshift and restore gamma' \
 	'DWM  Print                screenshot region/window' \
 	'DWM  Shift+Print          screenshot full screen' \
 	'DWM  Super+mouse 1/2/3   move / float / resize window' \
@@ -115,6 +117,8 @@ case $choice in
 'DWM  Super+Ctrl+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
 'DWM  Super+Shift+H '* ) exec dwm-st-help ;;
 'DWM  Super+S '* ) exec dwm-suspend ;;
+'DWM  Alt+BrightnessDown '* ) exec dwm-redshift start ;;
+'DWM  Alt+BrightnessUp '* ) exec dwm-redshift stop ;;
 'DWM  Print '* ) cd "$HOME" && exec dwm-screenshot ;;
 'DWM  Shift+Print '* ) cd "$HOME" && exec dwm-screenshot-full ;;
 'DWM  Super+Shift+B '* )

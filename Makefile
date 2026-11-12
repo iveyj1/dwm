@@ -41,6 +41,8 @@ install: all
 		dwm-keymap\
 		dwm-st-help\
 		dwm-suspend\
+		dwm-redshift\
+		dwm-process\
 		brightness-up\
 		brightness-down\
 		dwm-screenshot\
@@ -53,6 +55,8 @@ install: all
 			  ${DESTDIR}${PREFIX}/bin/dwm-keymap \
 			  ${DESTDIR}${PREFIX}/bin/dwm-st-help \
 			  ${DESTDIR}${PREFIX}/bin/dwm-suspend \
+			  ${DESTDIR}${PREFIX}/bin/dwm-redshift \
+			  ${DESTDIR}${PREFIX}/bin/dwm-process \
 			  ${DESTDIR}${PREFIX}/bin/brightness-up \
 			  ${DESTDIR}${PREFIX}/bin/brightness-down \
 			  ${DESTDIR}${PREFIX}/bin/dwm-screenshot \
@@ -67,13 +71,17 @@ uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm ${DESTDIR}${PREFIX}/bin/dwm-spawn ${DESTDIR}${PREFIX}/bin/dwm-keymap\
 		${DESTDIR}${PREFIX}/bin/dwm-st-help\
 		${DESTDIR}${PREFIX}/bin/dwm-suspend\
+		${DESTDIR}${PREFIX}/bin/dwm-redshift\
+		${DESTDIR}${PREFIX}/bin/dwm-process\
 		${DESTDIR}${PREFIX}/bin/brightness-up 
 		${DESTDIR}${PREFIX}/bin/brightness-down\
 		${DESTDIR}${PREFIX}/bin/dwm-fmgr\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 
 check:
+	bash -n dwm-redshift
 	@for f in brightness-up brightness-down dwm-suspend dwm-screenshot dwm-screenshot-full dwm-keymap dwm-st-help dwm-fmgr; do sh -n "$$f" || exit; done
+	python3 tests/redshift.py
 	python3 tests/helpers.py
 	python3 tests/keymap.py
 	python3 tests/rename.py
