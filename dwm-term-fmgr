@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+cd "$HOME" || exit
+
+if command -v spf >/dev/null 2>&1; then
+   exec st -e spf
+elif command -v nnn >/dev/null 2>&1; then
+   exec st -e nnn
+else
+   printf 'No supported file browser installed\n' >&2
+   exit 1
+fi
+
+

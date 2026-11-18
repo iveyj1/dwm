@@ -75,6 +75,7 @@ static const char *term2cmd[]  = { "sh", "-c" ,"cd $HOME;exec ghostty", NULL };
 static const char *keymapcmd[] = { "/bin/sh", "-c", "dwm-keymap", NULL };
 static const char *sthelpcmd[] = { "/bin/sh", "-c", "dwm-st-help", NULL };
 static const char *fmcmd[] = { "sh", "-c", "cd \"$HOME\" && 'dwm-fmgr'", NULL };
+static const char *termfmcmd[] = { "sh", "-c", "cd \"$HOME\" && 'dwm-term-fmgr'", NULL };
 static const char *floatcmd[] = { "sh", "-c" ,"cd $HOME;exec st", NULL };
 /* Negative x/y are offsets from the right/bottom edge of the selected monitor.
  * Set centered to 1 to ignore x/y and center on the selected monitor. */
@@ -125,6 +126,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_h,      spawn,          {.v = sthelpcmd } },
 	{ MODKEY|ShiftMask,             XK_b,      spawn,          {.v = browsercmd} },
     { MODKEY|ShiftMask,             XK_e,      spawn,          {.v = fmcmd} },
+    { MODKEY,                       XK_e,      spawn,          {.v = termfmcmd} },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },

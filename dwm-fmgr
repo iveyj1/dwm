@@ -1,2 +1,10 @@
 #!/usr/bin/env bash
-cd $HOME && st -e "nnn" 
+cd "$HOME" || exit
+
+if command -v nemo >/dev/null 2>&1; then
+   export GTK_THEME=Adwaita:dark
+   exec nemo
+else
+   printf 'No supported file browser installed\n' >&2
+   exit 1
+fi

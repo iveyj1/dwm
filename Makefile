@@ -48,6 +48,7 @@ install: all
 		dwm-screenshot\
 		dwm-screenshot-full\
 		dwm-fmgr\
+		dwm-term-fmgr\
 		${DESTDIR}${PREFIX}/bin
 
 	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm \
@@ -61,7 +62,8 @@ install: all
 			  ${DESTDIR}${PREFIX}/bin/brightness-down \
 			  ${DESTDIR}${PREFIX}/bin/dwm-screenshot \
 			  ${DESTDIR}${PREFIX}/bin/dwm-screenshot-full \
-			  ${DESTDIR}${PREFIX}/bin/dwm-fmgr
+			  ${DESTDIR}${PREFIX}/bin/dwm-fmgr\
+			  ${DESTDIR}${PREFIX}/bin/dwm-term-fmgr
 
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
@@ -76,12 +78,13 @@ uninstall:
 		${DESTDIR}${PREFIX}/bin/brightness-up 
 		${DESTDIR}${PREFIX}/bin/brightness-down\
 		${DESTDIR}${PREFIX}/bin/dwm-fmgr\
+		${DESTDIR}${PREFIX}/bin/dwm-term-fmgr\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 
 check:
 	bash -n dwm-redshift
-	@for f in brightness-up brightness-down dwm-suspend dwm-screenshot dwm-screenshot-full dwm-keymap dwm-st-help dwm-fmgr; do sh -n "$$f" || exit; done
 	python3 tests/redshift.py
+	@for f in brightness-up brightness-down dwm-suspend dwm-screenshot dwm-screenshot-full dwm-keymap dwm-st-help dwm-fmgr dwm-term-fmgr; do sh -n "$$f" || exit; done
 	python3 tests/helpers.py
 	python3 tests/keymap.py
 	python3 tests/rename.py
