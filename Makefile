@@ -36,6 +36,9 @@ dist: clean
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 
+	install -m 755 wsup-tui ${DESTDIR}${PREFIX}/bin/
+	install -m 644 wsup.py ${DESTDIR}${PREFIX}/bin/
+
 	cp -f dwm \
 		dwm-spawn\
 		dwm-keymap\
@@ -70,6 +73,7 @@ install: all
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
 
 uninstall:
+	rm -f ${DESTDIR}${PREFIX}/bin/wsup-tui ${DESTDIR}${PREFIX}/bin/wsup.py
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm ${DESTDIR}${PREFIX}/bin/dwm-spawn ${DESTDIR}${PREFIX}/bin/dwm-keymap\
 		${DESTDIR}${PREFIX}/bin/dwm-st-help\
 		${DESTDIR}${PREFIX}/bin/dwm-suspend\

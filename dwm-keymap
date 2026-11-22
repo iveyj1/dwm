@@ -18,6 +18,7 @@ choice=$(printf '%s\n' \
 	'DWM  Super+S              suspend laptop' \
 	'DWM  Super+Shift+S        floating st terminal' \
 	'DWM  Super+Shift+B        browser' \
+	'DWM  Super+Shift+W        Wi-Fi manager in st' \
 	'DWM  Super+E              spf in st (home directory)' \
 	'DWM  Super+Shift+E        file manager' \
 	'DWM  Super+B              toggle bar' \
@@ -116,6 +117,7 @@ case $choice in
 'DWM  Super+Shift+Return '* ) cd "$HOME" && exec kitty ;;
 'DWM  Super+Ctrl+Shift+Return '* ) cd "$HOME" && exec ghostty ;;
 'DWM  Super+Shift+H '* ) exec dwm-st-help ;;
+'DWM  Super+Shift+W '* ) exec st -e wsup-tui ;;
 'DWM  Super+S '* ) exec dwm-suspend ;;
 'DWM  Alt+BrightnessDown '* ) exec dwm-redshift start ;;
 'DWM  Alt+BrightnessUp '* ) exec dwm-redshift stop ;;

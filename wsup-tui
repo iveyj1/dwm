@@ -4,6 +4,7 @@ from collections import Counter
 import curses
 import os
 import queue
+import sys
 import tempfile
 from pathlib import Path
 import threading
@@ -325,6 +326,15 @@ def choose_interface(win, names):
             return None
 
 
+def retry_with_sudo(parser, error, args):
+    if os.geteuid() != 0:
+        try:
+            os.execvp('sudo', ['sudo', '-H', '--', str(Path(__file__).resolve()), *args])
+        except OSError as e:
+            parser.exit(1, f'{error}; cannot run sudo: {e}\n')
+    parser.exit(1, f'{error}\n')
+
+
 def main():
     p = argparse.ArgumentParser()
     options = p.add_mutually_exclusive_group()
@@ -335,6 +345,8 @@ def main():
     if a.i is None:
         try:
             names = interfaces(a.ctrl_dir)
+        except PermissionError as e:
+            retry_with_sudo(p, e, sys.argv[1:])
         except OSError as e:
             p.exit(1, f'Cannot list control sockets: {e}\n')
         if not names:
@@ -357,8 +369,8 @@ def main():
         c = Control(a.ctrl_dir,a.i)
     except FileNotFoundError:
         p.exit(1,'Interface control socket not found\n')
-    except PermissionError:
-        p.exit(1,'Permission denied accessing control socket\n')
+    except PermissionError as e:
+        retry_with_sudo(p, e, ['--ctrl-dir=' + a.ctrl_dir, '-i' + a.i])
     except (Failure,OSError) as e:
         p.exit(1,str(e)+'\n')
     with c.stack:

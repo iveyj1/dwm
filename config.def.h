@@ -94,7 +94,7 @@ static const char *brightdowncmd[] = { "brightness-down", NULL };
 static const char *screenshotcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot", NULL};
 static const char *screenshotfullcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot-full", NULL};
 static const char *sleepcmd[] = { "dwm-suspend", NULL };
-static const char *wificmd[] = { "st", "-e", "wsup", NULL };
+static const char *wificmd[] = { "st", "-e", "wsup-tui", NULL };
 
 static const Key keys[] = {
 	{ MODKEY,                       XK_F1,                  spawn, SHCMD(VOLMUTE) },
