@@ -3,3 +3,4 @@
 /dwm
 /dwm-spawn
 /scripts/cloc_by_commit.md
+/__pycache__/*

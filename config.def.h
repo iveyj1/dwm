@@ -94,6 +94,7 @@ static const char *brightdowncmd[] = { "brightness-down", NULL };
 static const char *screenshotcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot", NULL};
 static const char *screenshotfullcmd[] = { "sh", "-c", "cd $HOME;dwm-screenshot-full", NULL};
 static const char *sleepcmd[] = { "dwm-suspend", NULL };
+static const char *wificmd[] = { "st", "-e", "wsup", NULL };
 
 static const Key keys[] = {
 	{ MODKEY,                       XK_F1,                  spawn, SHCMD(VOLMUTE) },
@@ -127,6 +128,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_b,      spawn,          {.v = browsercmd} },
     { MODKEY|ShiftMask,             XK_e,      spawn,          {.v = fmcmd} },
     { MODKEY,                       XK_e,      spawn,          {.v = termfmcmd} },
+    { MODKEY|ShiftMask,             XK_w,      spawn,          {.v = wificmd} },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },

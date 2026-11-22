@@ -1,0 +1,380 @@
+#!/usr/bin/env python3
+import argparse
+from collections import Counter
+import curses
+import os
+import queue
+import tempfile
+from pathlib import Path
+import threading
+import time
+
+from wsup import Control, Failure, Manager, access_points, channel, display, group_aps, unescape
+
+
+def record(state, message):
+    state['history'] = (state.get('history', []) + [time.strftime('%H:%M:%S ') + message])[-50:]
+
+
+def worker(m, jobs, stop, cancel, state):
+    rows, profiles = [], {}
+    refresh = poll = 0
+    pending = None
+    next_scan = 0
+    last_link = None
+    while not stop.is_set():
+        try:
+            now = time.monotonic()
+            job = jobs.get_nowait() if not jobs.empty() else ()
+            if job == ('scan',) or (not job and state.get('live') and now >= next_scan and pending is None):
+                if pending is None:
+                    next_scan = now + 10
+                    state['scan_info'] = 'Scanning…'
+                    try:
+                        m.q('SCAN')
+                    except (Failure, OSError):
+                        state['scan_info'] = 'Scan failed'
+                        raise
+                    pending = now
+                    state['msg'] = 'Scanning…'
+            elif job:
+                try:
+                    if job[0] == 'connect':
+                        record(state, 'Connection requested')
+                        try:
+                            state['msg'] = m.connect(*job[1:], cancel)
+                        except Failure as e:
+                            reason = str(e)
+                            record(state, reason if reason in ('Authentication rejected', 'Cancelled', 'Association timed out') else 'Connection request failed')
+                            raise
+                        record(state, 'Association authenticated')
+                    else:
+                        m.save(job[1], True, m.profiles())
+                        state['msg'] = 'Preference saved'
+                finally:
+                    state['busy'] = False
+                    refresh = poll = 0
+            event = m.c.event()
+            if 'CTRL-EVENT-SSID-TEMP-DISABLED' in event and 'reason=WRONG_KEY' in event:
+                record(state, 'Authentication rejected')
+            elif 'CTRL-EVENT-DISCONNECTED' in event:
+                record(state, 'Disconnected')
+            if 'CTRL-EVENT-SCAN-RESULTS' in event or (pending is not None and now-pending > 8):
+                pending = None
+                state['scan_info'] = 'Results unavailable'
+                aps = access_points(m.q('SCAN_RESULTS'))
+                state['scan_info'] = time.strftime('Updated %H:%M:%S')
+                rows = group_aps(aps)
+                state['aps'] = aps
+                if state['msg'] == 'Scanning…':
+                    state['msg'] = ''
+                refresh = 0
+            if now >= poll:
+                poll = now + 2
+                st = m.status()
+                connected = st.get('wpa_state') == 'COMPLETED'
+                state['associated'] = st.get('bssid', '').lower() if connected else ''
+                link = (connected, bool(st.get('ip_address')), state['associated'])
+                if link != last_link:
+                    record(state, ('Associated with IP address' if link[1] else 'Associated; no IP address reported') if connected else 'Not associated')
+                    last_link = link
+                signal = ''
+                if st.get('wpa_state') == 'COMPLETED':
+                    try:
+                        signal = next((s for s in m.q('SIGNAL_POLL').splitlines() if s.startswith('RSSI=')), '')
+                    except Failure:
+                        pass
+                state['link'] = '  '.join((st.get('wpa_state','?'), display(unescape(st.get('ssid',''))), st.get('ip_address',''), signal))
+                for n in m.temp.copy() - {st.get('id')}:
+                    m.q('REMOVE_NETWORK '+n)
+                    m.temp.remove(n)
+                    refresh = 0
+            if now >= refresh:
+                refresh = now + 5
+                profiles = m.profiles()
+                state['saved'] = [f'#{n}  priority {m.q("GET_NETWORK " + n + " priority")}  ' +
+                                  ('disabled' if '[DISABLED]' in flags else 'enabled') +
+                                  f'  {security}  {display(ssid)}' for n, ((ssid, security), flags) in profiles.items() if n not in m.temp]
+            state['rows'] = [(key, db, next((n for n,(k,_) in profiles.items() if k == key and n not in m.temp), None), any(k == key for k,_ in profiles.values())) for key,db in rows]
+        except (Failure, OSError, ValueError) as e:
+            state['msg'] = str(e)
+            stop.wait(.5)
+        stop.wait(.05)
+
+
+def preference_file():
+    root = os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config'
+    return Path(root) / 'wsup-tui' / 'default-interface'
+
+
+def default_interface():
+    try:
+        return os.fsdecode(preference_file().read_bytes())
+    except FileNotFoundError:
+        return None
+
+
+def toggle_default(iface):
+    path = preference_file()
+    if default_interface() == iface:
+        path.unlink()
+        return 'Default interface cleared'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as tmp:
+        try:
+            tmp.write(os.fsencode(iface))
+            tmp.flush()
+            os.replace(tmp.name, path)
+        finally:
+            Path(tmp.name).unlink(missing_ok=True)
+    return 'Default interface set to ' + display(os.fsencode(iface))
+
+
+CHANNEL_ROW = '{:1} {:7} {:>3} {:>5}  {:17} {:>4} {:>6}  {}'
+CHANNEL_HEADER = CHANNEL_ROW.format('*', 'Band', 'Ch', 'MHz', 'BSSID', 'dBm', 'Nearby', 'SSID')
+
+
+def panel(view, state, key, by_signal=False):
+    if view == 'p':
+        return 'Saved profiles', state.get('saved', [])
+    if view == 'l':
+        return 'Connection history (latest first)', state.get('history', [])[::-1]
+    aps = state.get('aps', [])
+    if view == 'a':
+        aps = [ap for ap in aps if ap[0] == key]
+        title = 'Access points: ' + display(key[0])
+    else:
+        aps = sorted(aps, key=lambda ap: (-ap[3], ap[2], ap[1]) if by_signal else (ap[2], -ap[3], ap[1]))
+        counts = Counter(ap[2] for ap in aps)
+        title = 'Observed APs | ' + ('Strongest first' if by_signal else 'Channel order') + (' | Live' if state.get('live') else ' | Manual') + ' | ' + state.get('scan_info', 'Awaiting scan')
+    lines = []
+    for (ssid, _), bssid, freq, db in aps:
+        band, ch = channel(freq)
+        active = '*' if bssid == state.get('associated') else ' '
+        name = display(ssid) if any(ssid) else '<hidden>'
+        if view == 'm':
+            nearby = sum(counts[f] for f in range(freq-19, freq+20) if f != freq) if band == '2.4 GHz' else '-'
+            lines.append(CHANNEL_ROW.format(active, band, ch or '?', freq, bssid, db, nearby, name))
+        else:
+            lines.append(f'{active}{band} ch {ch or "?"} ({freq} MHz)  {bssid}  {db} dBm  ' + name)
+    return title, lines
+
+
+class Motions:
+    def __init__(self):
+        self.prefix = False
+
+    def move(self, key, pos, last, height):
+        if key == -1:  # timeout between keystrokes
+            return pos
+        if key == ord('g'):
+            self.prefix = not self.prefix
+            return pos if self.prefix else 0
+        self.prefix = False
+        half = max(1, height // 2)
+        if key == ord('G'):
+            return max(0, last)
+        delta = {ord('j'): 1, curses.KEY_DOWN: 1, ord('k'): -1, curses.KEY_UP: -1,
+                 4: half, 21: -half}.get(key)
+        return None if delta is None else max(0, min(last, pos + delta))
+
+
+def ui(win, state, jobs, cancel, iface):
+    curses.noecho()
+    win.timeout(100)
+    idx = 0
+    prompt = secret = ''
+    target = None
+    view = ''
+    offset = 0
+    detail_key = None
+    by_signal = False
+    motion = Motions()
+    while True:
+        rows = state['rows']
+        idx = min(idx, max(0,len(rows)-1))
+        h,w = win.getmaxyx()
+        win.erase()
+        def line(y,text,attr=0):
+            if 0 <= y < h and w > 1:
+                win.addnstr(y,0,text,w-1,attr)
+        line(0,display(os.fsencode(iface)) + ': ' + state['link'])
+        height = max(0,h-4)
+        start = max(0,idx-height+1)
+        for j,(key,db,n,matched) in enumerate(rows[start:start+height],start):
+            line(1+j-start,f'{db:4}  {key[1]:11} {display(key[0])}' + (' [saved]' if n else ' [temporary]' if matched else ''), curses.A_REVERSE if j == idx else 0)
+        line(h-2,state['msg'])
+        line(h-1,{'action':'Enter: connect once   S: save   P: save and prefer   Esc: cancel','password':'WPA2 credential: '+'*'*len(secret),'open':'Connect to unencrypted network? y/N','prefer':'Promote profile and write whole configuration? y/N'}.get(prompt,'j/k ↑↓ select  Enter connect  s scan  d prefer  f default iface  Esc cancel  q quit'))
+        if view:
+            win.erase()
+            title, lines = panel(view, state, detail_key, by_signal)
+            line(0,title)
+            first = 1
+            if view == 'm':
+                line(1,CHANNEL_HEADER,curses.A_BOLD)
+                first = 2
+            size = max(0,h-first-1)
+            offset = min(offset, max(0,len(lines)-size))
+            for y,text in enumerate((lines or ['No entries'])[offset:offset+size],first):
+                line(y,text)
+            line(h-1,('r sort  v live  s scan  ' if view == 'm' else '') + 'j/k ↑↓ scroll  Esc back  q quit')
+        elif not prompt:
+            line(h-3,'a AP detail  m channel map  p saved profiles  l diagnostics')
+        win.refresh()
+        k = win.getch()
+        if view:
+            moved = motion.move(k, offset, len(lines)-size, size)
+            if moved is not None:
+                offset = moved
+                continue
+            if k == ord('q'):
+                return
+            if k == 27:
+                state['live'] = False
+                view = ''
+            elif view == 'm' and k == ord('r'):
+                by_signal = not by_signal
+                offset = 0
+            elif view == 'm' and k == ord('v'):
+                state['live'] = not state.get('live')
+            elif view == 'm' and k == ord('s'):
+                jobs.put(('scan',))
+            continue
+        if k == -1:
+            continue
+        if not prompt and not state['busy']:
+            moved = motion.move(k, idx, len(rows)-1, height)
+            if moved is not None:
+                idx = moved
+                continue
+        if k == 27:
+            prompt = secret = ''
+            cancel.set()
+            continue
+        def submit(job):
+            cancel.clear()
+            state.update(busy=True,msg='Working…')
+            jobs.put(job)
+        if prompt == 'password':
+            if k in (10,13,curses.KEY_ENTER):
+                submit(('connect',target[0],secret,action))
+                secret = prompt = ''
+            elif k in (8,127,curses.KEY_BACKSPACE):
+                secret = secret[:-1]
+            elif 32 <= k < 127 and len(secret)<64:
+                secret += chr(k)
+        elif prompt == 'action':
+            action = {10:'once',13:'once',curses.KEY_ENTER:'once',ord('S'):'save',ord('P'):'prefer'}.get(k)
+            if action:
+                if target[3]:
+                    submit(('connect',target[0],'',action))
+                    prompt = ''
+                else:
+                    prompt = 'open' if target[0][1]=='open' else 'password'
+        elif prompt:
+            if k == ord('y'):
+                submit(('prefer',target[2]) if prompt=='prefer' else ('connect',target[0],'',action))
+            prompt = ''
+        elif k == ord('q'):
+            return
+        elif not state['busy']:
+            if k in map(ord,'ampl') and (k != ord('a') or rows):
+                view, offset = chr(k), 0
+                detail_key = rows[idx][0] if rows else None
+            elif k == ord('f'):
+                try:
+                    state['msg'] = toggle_default(iface)
+                except OSError as e:
+                    state['msg'] = 'Cannot change default interface: ' + str(e)
+            elif k == ord('s'):
+                jobs.put(('scan',))
+            elif rows and k in (10,13,curses.KEY_ENTER,ord('d')):
+                target = rows[idx]
+                if k == ord('d'):
+                    if target[2]:
+                        prompt = 'prefer'
+                elif target[0][1]!='unsupported':
+                    prompt = 'action'
+
+
+def interfaces(directory):
+    return sorted(p.name for p in Path(directory).iterdir()
+                  if p.name != 'global' and p.is_socket())
+
+
+def choose_interface(win, names):
+    index = 0
+    motion = Motions()
+    while True:
+        h, w = win.getmaxyx()
+        win.erase()
+        win.addnstr(0, 0, 'Select interface (j/k or ↑↓, Enter to use, q to quit)', max(0, w-1))
+        count = max(0, h-1)
+        start = max(0, index-count+1)
+        for pos in range(start, min(start+count, len(names))):
+            win.addnstr(1+pos-start, 0, display(os.fsencode(names[pos])), max(0, w-1),
+                        curses.A_REVERSE if pos == index else 0)
+        win.refresh()
+        key = win.getch()
+        moved = motion.move(key, index, len(names)-1, count)
+        if moved is not None:
+            index = moved
+        elif key in (10, 13, curses.KEY_ENTER):
+            return names[index]
+        elif key in (27, ord('q')):
+            return None
+
+
+def main():
+    p = argparse.ArgumentParser()
+    options = p.add_mutually_exclusive_group()
+    options.add_argument('--choose', action='store_true', help='ignore the saved interface and open the picker')
+    options.add_argument('-i', metavar='IFACE', help='skip interface selection')
+    p.add_argument('--ctrl-dir','-p', default='/run/wpa_supplicant')
+    a = p.parse_args()
+    if a.i is None:
+        try:
+            names = interfaces(a.ctrl_dir)
+        except OSError as e:
+            p.exit(1, f'Cannot list control sockets: {e}\n')
+        if not names:
+            p.exit(1, f'No interface control sockets in {a.ctrl_dir}\n')
+        try:
+            preferred = None if a.choose else default_interface()
+        except OSError as e:
+            p.exit(1, f'Cannot read default interface: {e}\n')
+        if preferred in names:
+            a.i = preferred
+        elif len(names) == 1 and not a.choose:
+            a.i = names[0]
+        else:
+            a.i = curses.wrapper(choose_interface, names)
+        if a.i is None:
+            return
+    if '/' in a.i or a.i in ('','.','..'):
+        p.error('Invalid interface name')
+    try:
+        c = Control(a.ctrl_dir,a.i)
+    except FileNotFoundError:
+        p.exit(1,'Interface control socket not found\n')
+    except PermissionError:
+        p.exit(1,'Permission denied accessing control socket\n')
+    except (Failure,OSError) as e:
+        p.exit(1,str(e)+'\n')
+    with c.stack:
+        jobs = queue.Queue()
+        jobs.put(('scan',))
+        stop,cancel = threading.Event(),threading.Event()
+        state = dict(link='Loading status…',msg='',busy=False,rows=[])
+        t = threading.Thread(target=worker,args=(Manager(c),jobs,stop,cancel,state))
+        t.start()
+        try:
+            curses.wrapper(ui,state,jobs,cancel,a.i)
+        finally:
+            stop.set()
+            cancel.set()
+            t.join()
+
+
+if __name__ == '__main__':
+    main()
